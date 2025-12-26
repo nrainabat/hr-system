@@ -22,7 +22,6 @@ Route::middleware(['auth'])->group(function () {
 // Logout
 Route::post('/logout', [AuthController::class, 'logout']);
 
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', function () {
         return view('profile');
@@ -30,7 +29,6 @@ Route::middleware('auth')->group(function () {
 });
 
 use App\Http\Controllers\UserController;
-
 //key in new employee/user
 Route::middleware(['auth'])->group(function () {
 
@@ -45,6 +43,7 @@ use App\Http\Controllers\ProfileController;
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 });
 
 Route::get('/dashboard', function () {
