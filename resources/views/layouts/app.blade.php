@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@yield('title', 'iManageHR')</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            /* Adjust padding to account for fixed header and footer */
+            padding-top: 70px; 
+            padding-bottom: 70px;
+        }
+
+        /* Brand styling */
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        /* Sidebar (Offcanvas) Customization */
+        .offcanvas {
+            background-color: #873260; /* Your theme color */
+            color: white;
+            width: 280px !important; /* <--- REDUCED WIDTH HERE */
+        }
+        
+        .offcanvas .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%); /* Make close button white */
+        }
+
+        .offcanvas-body .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1rem;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .offcanvas-body .nav-link:hover {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding-left: 10px; /* Slide effect on hover */
+            transition: all 0.3s;
+        }
+    </style>
+
+    @stack('styles')
+</head>
+
+<body>
+
+<nav class="navbar fixed-top shadow-sm" style="background-color:#873260;">
+    <div class="container-fluid px-3">
+        
+        <div class="d-flex align-items-center">
+            <button class="btn border-0 text-white me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
+                <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+            </button>
+
+            <a class="navbar-brand text-white" href="#">
+                iManageHR
+            </a>
+        </div>
+
+        <ul class="navbar-nav ms-auto flex-row">
+            @auth
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown">
+                        {{ Auth::user()->username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end position-absolute">
+                        <li><a class="dropdown-item" href="/profile">Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="POST" action="/logout">
+                                @csrf
+                                <button type="submit" class="dropdown-item text-danger">
+                                    Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+            @endauth
+        </ul>
+    </div>
+</nav>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title text-white" id="sidebarMenuLabel">Menu</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    
+    <div class="offcanvas-body">
+        <nav class="nav flex-column">
+            @auth
+                {{-- ADMIN LINKS --}}
+                @if(Auth::user()->role === 'admin')
+                    <a class="nav-link" href="/admin/dashboard">Dashboard</a>
+                    <a class="nav-link" href="/admin/users">Users</a>
+                    <a class="nav-link" href="/admin/employees">Employees</a>
+                    <a class="nav-link" href="/admin/interns">Interns</a>
+                @endif
+
+                {{-- SUPERVISOR LINKS --}}
+                @if(Auth::user()->role === 'supervisor')
+                    <a class="nav-link" href="/supervisor/dashboard">Dashboard</a>
+                    <a class="nav-link" href="/supervisor/interns">My Interns</a>
+                @endif
+
+                {{-- EMPLOYEE LINKS --}}
+                @if(Auth::user()->role === 'employee')
+                    <a class="nav-link" href="/employee/dashboard">Dashboard</a>
+                    <a class="nav-link" href="/employee/attendance">Attendance</a>
+                    <a class="nav-link" href="/employee/leave">Leave Application</a>
+                @endif
+            @endauth
+        </nav>
+    </div>
+</div>
+
+<main class="container-fluid px-4">
+    @yield('content')
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+@stack('scripts')
+
+</body>
+</html>
