@@ -51,13 +51,18 @@ Route::get('/dashboard', function () {
 });
 
 //Apply for a leave
+// ... inside the existing LeaveController group ...
+
 use App\Http\Controllers\LeaveController;
 Route::middleware(['auth'])->group(function () {
-    // Show the form
+    // 1. Show the Application Form (Existing)
     Route::get('/employee/leave', [LeaveController::class, 'create'])->name('leave.create');
     
-    // Process the form submission
+    // 2. Process the Form (Existing)
     Route::post('/employee/leave/store', [LeaveController::class, 'store'])->name('leave.store');
+
+    // 3. NEW: Show the List of Applications
+    Route::get('/employee/leave/history', [LeaveController::class, 'history'])->name('leave.history');
 });
 
 //clock in & clock out

@@ -118,9 +118,32 @@
 
                 {{-- EMPLOYEE LINKS --}}
                 @if(Auth::user()->role === 'employee')
-                    <a class="nav-link" href="/employee/dashboard">Dashboard</a>
-                    <a class="nav-link" href="/employee/attendance">Attendance</a>
-                    <a class="nav-link" href="/employee/leave">Leave Application</a>
+                    <a class="nav-link" href="/employee/dashboard">
+                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                    </a>
+                    
+                    <a class="nav-link" href="/employee/attendance">
+                        <i class="bi bi-calendar-check me-2"></i> Attendance
+                    </a>
+
+                    {{-- LEAVE DROPDOWN --}}
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-briefcase me-2"></i> Leave
+                        </a>
+                        <ul class="dropdown-menu border-0 shadow-sm" style="background-color: rgba(255, 255, 255, 0.9);">
+                            <li>
+                                <a class="dropdown-item text-dark" href="{{ route('leave.create') }}">
+                                    <i class="bi bi-pencil-square me-2"></i> Apply Form
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-dark" href="{{ route('leave.history') }}">
+                                    <i class="bi bi-list-ul me-2"></i> List of Application
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 @endif
             @endauth
         </nav>

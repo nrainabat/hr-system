@@ -50,4 +50,14 @@ public function store(Request $request)
     // D. Redirect
     return redirect('/employee/dashboard')->with('success', 'Leave application submitted successfully!');
     }
+
+    // NEW FUNCTION: Show History
+    public function history()
+    {
+        $leaves = LeaveApplication::where('user_id', Auth::id())
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+        return view('employee.leaveHistory', compact('leaves'));
+    }
 }
