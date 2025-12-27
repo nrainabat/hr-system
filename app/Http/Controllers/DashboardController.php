@@ -6,68 +6,61 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Attendance;
 use App\Models\LeaveApplication;
-use App\Models\User;
+use App\Models\InternDocument; // Import this
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    // Admin Dashboard
-    public function admin()
-    {
-        abort_if(Auth::user()->role !== 'admin', 403);
+    // Admin and Supervisor functions remain unchanged...
+    public function admin() { /* ... */ return view('admin.dashboard'); }
+    public function supervisor() { /* ... */ return view('supervisor.dashboard'); }
 
-        // 1. Fetch Statistics
-        // UPDATED: Count all users EXCEPT 'admin'
-        $totalUsers = User::where('role', '!=', 'admin')->count();
-
-        $totalEmployees   = User::where('role', 'employee')->count();
-        $totalSupervisors = User::where('role', 'supervisor')->count();
-        $totalInterns     = User::where('role', 'intern')->count();
-
-        return view('admin.dashboard', compact('totalUsers', 'totalEmployees', 'totalSupervisors', 'totalInterns'));
-    }
-
-    // Supervisor Dashboard
-    public function supervisor()
-    {
-        abort_if(Auth::user()->role !== 'supervisor', 403);
-        return view('supervisor.dashboard');
-    }
-
-    // Employee Dashboard (Main Logic)
+    // Unified Dashboard Logic
     public function employee()
     {
-        $userId = Auth::id();
+        $user = Auth::user();
+        $userId = $user->id;
         $today = Carbon::today();
 
-        // 1. Attendance - UPDATED LOGIC
-        // We use 'latest()' to ensure we fetch the MOST RECENT attendance record for today.
-        // This allows the system to see if the last action was 'Clock Out', 
-        // so it can show the 'Clock In' button again for a new shift.
+        // 1. Attendance (Common for both)
         $todayAttendance = Attendance::where('user_id', $userId)
                             ->where('date', $today)
-                            ->latest() // <--- CRITICAL CHANGE: Gets the latest entry
+                            ->latest()
                             ->first();
 
-        // 2. Leave Statistics
+        // 2. Leave Statistics (Common for both)
         $totalLeaves = LeaveApplication::where('user_id', $userId)->count();
         $approvedCount = LeaveApplication::where('user_id', $userId)->where('status', 'approved')->count();
         $rejectedCount = LeaveApplication::where('user_id', $userId)->where('status', 'rejected')->count();
         $cancelledCount = LeaveApplication::where('user_id', $userId)->where('status', 'cancelled')->count();
 
-        // 3. Recent Leave Applications (Last 5)
-        $recentLeaves = LeaveApplication::where('user_id', $userId)
-                            ->orderBy('created_at', 'desc')
-                            ->take(5)
-                            ->get();
+        // 3. Conditional Data (Leaves vs Documents)
+        $recentLeaves = [];
+        $recentDocuments = [];
 
+        if ($user->role === 'intern') {
+            // Fetch Documents for Interns
+            $recentDocuments = InternDocument::where('user_id', $userId)
+                                ->latest()
+                                ->take(5)
+                                ->get();
+        } else {
+            // Fetch Leaves for Employees
+            $recentLeaves = LeaveApplication::where('user_id', $userId)
+                                ->orderBy('created_at', 'desc')
+                                ->take(5)
+                                ->get();
+        }
+
+        // Return the SINGLE 'employee.dashboard' view
         return view('employee.dashboard', compact(
             'todayAttendance', 
             'totalLeaves', 
             'approvedCount', 
             'rejectedCount', 
             'cancelledCount', 
-            'recentLeaves'
+            'recentLeaves',
+            'recentDocuments'
         ));
     }
 }

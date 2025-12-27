@@ -26,19 +26,21 @@ class LoginController extends Controller
             'status'   => 'active',
         ];
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
+       if (Auth::attempt($credentials)) {
+        $request->session()->regenerate();
 
-            $role = Auth::user()->role;
+        $role = Auth::user()->role;
 
-            if ($role === 'admin') {
-                return redirect('/admin/dashboard');
-            } elseif ($role === 'supervisor') {
-                return redirect('/supervisor/dashboard');
-            } else {
-                return redirect('/employee/dashboard');
-            }
+        if ($role === 'admin') {
+            return redirect('/admin/dashboard');
+        } elseif ($role === 'supervisor') {
+            return redirect('/supervisor/dashboard');
+        } else {
+            return redirect('/employee/dashboard');
         }
+    }
+
+    return back()->with('error', 'Invalid username or password');
 
         return back()->with('error', 'Invalid username or password');
     }

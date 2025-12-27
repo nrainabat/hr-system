@@ -31,8 +31,7 @@ class AuthController extends Controller
             {
                 'admin'      => redirect('/admin/dashboard'),
                 'supervisor' => redirect('/supervisor/dashboard'),
-                'employee'   => redirect('/employee/dashboard'),
-                'intern'     => redirect('/employee/dashboard'), 
+                'employee', 'intern'  => redirect('/employee/dashboard'),
                 default      => redirect('/'),
             };
         }

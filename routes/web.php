@@ -16,7 +16,7 @@ use App\Http\Controllers\DashboardController;
 Route::middleware(['auth'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'admin']);
     Route::get('/supervisor/dashboard', [DashboardController::class, 'supervisor']);
-    Route::get('/employee/dashboard', [DashboardController::class, 'employee']);
+    Route::get('/employee/dashboard', [DashboardController::class, 'employee', 'intern'])->name('dashboard');
 });
 
 // Logout
@@ -71,4 +71,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clockIn');
     Route::post('/attendance/clock-out', [AttendanceController::class, 'clockOut'])->name('attendance.clockOut');
     Route::get('/employee/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+});
+
+// INTERN DOCUMENT UPLOAD ROUTE
+use App\Http\Controllers\internDocumentController;
+Route::middleware(['auth'])->group(function () {
+    // 1. Show the list (History)
+    Route::get('/intern/documents', [InternDocumentController::class, 'index'])->name('intern.documents.index');
+    // 2. Show the form (Upload Page)
+    Route::get('/intern/documents/create', [InternDocumentController::class, 'create'])->name('intern.documents.create');
+    // 3. Process the upload
+    Route::post('/intern/documents', [InternDocumentController::class, 'store'])->name('intern.documents.store');
 });
