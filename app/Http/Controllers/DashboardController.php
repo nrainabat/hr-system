@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Attendance;
 use App\Models\LeaveApplication;
+use App\Models\User;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -14,7 +15,16 @@ class DashboardController extends Controller
     public function admin()
     {
         abort_if(Auth::user()->role !== 'admin', 403);
-        return view('admin.dashboard');
+
+        // 1. Fetch Statistics
+        // UPDATED: Count all users EXCEPT 'admin'
+        $totalUsers = User::where('role', '!=', 'admin')->count();
+
+        $totalEmployees   = User::where('role', 'employee')->count();
+        $totalSupervisors = User::where('role', 'supervisor')->count();
+        $totalInterns     = User::where('role', 'intern')->count();
+
+        return view('admin.dashboard', compact('totalUsers', 'totalEmployees', 'totalSupervisors', 'totalInterns'));
     }
 
     // Supervisor Dashboard

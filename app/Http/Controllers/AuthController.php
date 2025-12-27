@@ -27,10 +27,13 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             // Redirect based on role
-            return match (Auth::user()->role) {
+            return match (Auth::user()->role) 
+            {
                 'admin'      => redirect('/admin/dashboard'),
                 'supervisor' => redirect('/supervisor/dashboard'),
-                'employee'      => redirect('/employee/dashboard'),
+                'employee'   => redirect('/employee/dashboard'),
+                'intern'     => redirect('/employee/dashboard'), 
+                default      => redirect('/'),
             };
         }
 
