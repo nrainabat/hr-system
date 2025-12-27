@@ -65,4 +65,5 @@ use App\Http\Controllers\AttendanceController;
 Route::middleware(['auth'])->group(function () {
     Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clockIn');
     Route::post('/attendance/clock-out', [AttendanceController::class, 'clockOut'])->name('attendance.clockOut');
+    Route::get('/employee/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
 });

@@ -6,7 +6,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
-    // 1. Update $fillable to include your new fields
     protected $fillable = [
         'username',
         'name',
@@ -14,9 +13,9 @@ class User extends Authenticatable
         'password',
         'role',
         'status',
-        'department',    // <--- Added
-        'position',      // <--- Added
-        'profile_image', // <--- Added
+        'department',    // New Field
+        'position',      // New Field
+        'profile_image', // New Field
     ];
 
     protected $hidden = [
@@ -24,6 +23,6 @@ class User extends Authenticatable
         'remember_token',
     ];
     
-    // IMPORTANT: The function "getAuthIdentifierName" has been REMOVED.
-    // This allows Laravel to use the correct 'id' (number) for database relationships.
+    // THE FUNCTION "getAuthIdentifierName" HAS BEEN REMOVED.
+    // This allows Laravel to use the numeric 'id' correctly.
 }

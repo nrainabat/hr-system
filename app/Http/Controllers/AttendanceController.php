@@ -12,20 +12,26 @@ class AttendanceController extends Controller
     // CLOCK IN
     public function clockIn()
     {
-        $user_id = Auth::user()->id; // Fixed: Get ID, not username
+        $user_id = Auth::id();
         $today = Carbon::today();
 
-        // Prevent double clock-in
-        $attendance = Attendance::where('user_id', $user_id)->where('date', $today)->first();
-        if ($attendance) {
-            return redirect()->back()->with('error', 'Already clocked in.');
+        // Check if there is currently an ACTIVE session (Clocked In but NOT Clocked Out)
+        $activeSession = Attendance::where('user_id', $user_id)
+                            ->where('date', $today)
+                            ->whereNull('clock_out') // Only looks for open sessions
+                            ->first();
+
+        // If an active session exists, prevent another Clock In
+        if ($activeSession) {
+            return redirect()->back()->with('error', 'You are already clocked in!');
         }
 
+        // Create a NEW record (This allows multiple shifts per day)
         Attendance::create([
             'user_id' => $user_id,
             'date' => $today,
             'clock_in' => Carbon::now()->format('H:i:s'),
-            'status' => 'Present', // Set initial status
+            'status' => 'Present',
         ]);
 
         return redirect()->back()->with('success', 'Clocked In Successfully!');
@@ -34,21 +40,34 @@ class AttendanceController extends Controller
     // CLOCK OUT
     public function clockOut()
     {
-        $user_id = Auth::user()->id;
+        $user_id = Auth::id();
         $today = Carbon::today();
 
-        // Find today's record
-        $attendance = Attendance::where('user_id', $user_id)->where('date', $today)->first();
+        // Find the record that is currently "Working" (Null clock_out)
+        $activeSession = Attendance::where('user_id', $user_id)
+                            ->where('date', $today)
+                            ->whereNull('clock_out')
+                            ->first();
 
-        // Update if clock_in exists but clock_out doesn't
-        if ($attendance && is_null($attendance->clock_out)) {
-            $attendance->update([
+        if ($activeSession) {
+            $activeSession->update([
                 'clock_out' => Carbon::now()->format('H:i:s'),
-                'status' => 'Completed', // Optional: Update status to Completed
+                'status' => 'Completed',
             ]);
             return redirect()->back()->with('success', 'Clocked Out Successfully!');
         }
 
-        return redirect()->back()->with('error', 'Cannot clock out yet.');
+        return redirect()->back()->with('error', 'You are not clocked in!');
+    }
+    
+    // VIEW HISTORY
+    public function index()
+    {
+        $attendanceHistory = Attendance::where('user_id', Auth::id())
+                                ->orderBy('date', 'desc')
+                                ->orderBy('created_at', 'desc')
+                                ->get();
+        
+        return view('employee.attendance', compact('attendanceHistory'));
     }
 }

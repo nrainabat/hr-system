@@ -5,30 +5,29 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Hash; // Import Hash
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
     public function show()
     {
         $user = Auth::user();
-        return view('profile', compact('user')); // Make sure view file is named 'profile.blade.php'
+        return view('profile', compact('user'));
     }
 
-    // Update Profile Info
     public function update(Request $request)
     {
-        $user = Auth::user(); // Get current user object
+        $user = Auth::user();
 
+        // 1. Validate (Added username, removed department/position)
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-            'department' => 'nullable|string|max:100',
-            'position' => 'nullable|string|max:100',
+            'name'          => 'required|string|max:255',
+            'username'      => 'required|string|max:255|unique:users,username,' . $user->id,
+            'email'         => 'required|email|max:255|unique:users,email,' . $user->id,
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Handle Image
+        // 2. Handle Image
         if ($request->hasFile('profile_image')) {
             if ($user->profile_image) {
                 Storage::disk('public')->delete($user->profile_image);
@@ -36,31 +35,30 @@ class ProfileController extends Controller
             $user->profile_image = $request->file('profile_image')->store('profile_images', 'public');
         }
 
-        // Update Fields
+        // 3. Update Allowed Fields Only
         $user->name = $request->name;
+        $user->username = $request->username; // Now updatable
         $user->email = $request->email;
-        $user->department = $request->department;
-        $user->position = $request->position;
         
-        // Save using the instance method
-        $user->save(); 
+        // Note: Department and Position are NOT updated here. 
+        // They stay as they were defined by Admin.
 
-        return redirect()->route('profile.show')->with('success', 'Profile information updated successfully!');
+        $user->save();
+
+        return redirect()->route('profile.show')->with('success', 'Profile updated successfully!');
     }
 
-    // Update Password
     public function updatePassword(Request $request)
     {
         $request->validate([
             'current_password' => 'required',
-            'new_password' => 'required|string|min:8|confirmed',
+            'new_password'     => 'required|string|min:8|confirmed',
         ]);
 
         if (!Hash::check($request->current_password, Auth::user()->password)) {
             return back()->withErrors(['current_password' => 'Current password does not match!']);
         }
 
-        // Update Password
         $user = Auth::user();
         $user->password = Hash::make($request->new_password);
         $user->save();
