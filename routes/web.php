@@ -82,4 +82,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/intern/documents/create', [InternDocumentController::class, 'create'])->name('intern.documents.create');
     // 3. Process the upload
     Route::post('/intern/documents', [InternDocumentController::class, 'store'])->name('intern.documents.store');
+    // SUPERVISOR DOCUMENTS
+    Route::get('/supervisor/documents', [InternDocumentController::class, 'supervisorIndex'])->name('supervisor.documents.index');
+    Route::get('/supervisor/documents/{id}/review', [InternDocumentController::class, 'edit'])->name('supervisor.documents.review');
+    Route::put('/supervisor/documents/{id}', [InternDocumentController::class, 'update'])->name('supervisor.documents.update');
 });

@@ -12,15 +12,22 @@
     </div>
 
     <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm text-white" style="background-color: #873260;">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold opacity-75">Total Users</h5>
-                    <h1 class="fw-bold mb-0">{{ $totalUsers }}</h1>
-                </div>
+        <div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+            <h5>Total Users</h5>
+            {{-- Display the variable --}}
+            <p class="fs-3 fw-bold">{{ $totalUsers }}</p>
+        </div>
+    </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm p-3">
+                <h5>Total Interns</h5>
+                {{-- Display the variable --}}
+                <p class="fs-3 fw-bold">{{ $totalInterns }}</p>
             </div>
         </div>
-
+    </div>
         <div class="col-md-3">
             <div class="card border-0 shadow-sm text-white bg-primary">
                 <div class="card-body p-4">

@@ -15,9 +15,10 @@ class InternDocument extends Model
         'file_path',
         'description',
         'status',
+        'signed_file_path',   // <--- Added
+        'supervisor_comment', // <--- Added
     ];
 
-    // Relationship to User
     public function user()
     {
         return $this->belongsTo(User::class);

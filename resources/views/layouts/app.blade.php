@@ -97,14 +97,8 @@
                     <a class="nav-link" href="/admin/interns">Interns</a>
                 @endif
 
-                {{-- SUPERVISOR LINKS --}}
-                @if(Auth::user()->role === 'supervisor')
-                    <a class="nav-link" href="/supervisor/dashboard">Dashboard</a>
-                    <a class="nav-link" href="/supervisor/interns">My Interns</a>
-                @endif
-
                 {{-- EMPLOYEE & INTERN SHARED LINKS --}}
-                @if(Auth::user()->role === 'employee' || Auth::user()->role === 'intern')
+                @if(Auth::user()->role === 'employee' || Auth::user()->role === 'intern' || Auth::user()->role === 'supervisor')
                     
                     <a class="nav-link" href="{{ route('dashboard') }}">
                         <i class="bi bi-speedometer2 me-2"></i> Dashboard
@@ -132,6 +126,17 @@
                             </li>
                         </ul>
                     </div>
+                @endif
+
+                {{-- SUPERVISOR LINKS --}}
+                @if(Auth::user()->role === 'supervisor')
+                    {{-- NEW: Navigation for Document Review --}}
+                    <a class="nav-link" href="{{ route('supervisor.documents.index') }}">
+                        <i class="bi bi-file-earmark-check me-2"></i> Review Documents
+                    </a>
+
+                    {{-- Optional: Keep or Remove 'My Interns' if not used --}}
+                    {{-- <a class="nav-link" href="/supervisor/interns">My Interns</a> --}}
                 @endif
 
                 {{-- INTERN --}}
