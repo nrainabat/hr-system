@@ -216,7 +216,14 @@
             </div>
             <div class="card-body">
                 <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light"><tr><th>Date</th><th>File</th><th>Status</th></tr></thead>
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>File</th>
+                            <th>Status</th>
+                            <th class="text-end">Action</th> {{-- NEW Action Column --}}
+                        </tr>
+                    </thead>
                     <tbody>
                         @forelse($recentDocuments ?? [] as $doc)
                             <tr>
@@ -228,9 +235,24 @@
                                     @else <span class="badge bg-warning text-dark">Pending</span>
                                     @endif
                                 </td>
+                                <td class="text-end">
+                                    {{-- Show DOWNLOAD button if signed --}}
+                                    @if($doc->status == 'signed' && $doc->signed_file_path)
+                                        <a href="{{ asset('storage/' . $doc->signed_file_path) }}" class="btn btn-sm btn-outline-success" download>
+                                            <i class="bi bi-download"></i> Signed
+                                        </a>
+                                    @elseif($doc->supervisor_comment)
+                                        {{-- Show NOTE icon if there is a comment but not signed (e.g. Rejected) --}}
+                                        <span class="text-muted small" title="{{ $doc->supervisor_comment }}">
+                                            <i class="bi bi-chat-left-text"></i> Note
+                                        </span>
+                                    @else
+                                        <span class="text-muted small">-</span>
+                                    @endif
+                                </td>
                             </tr>
                         @empty
-                            <tr><td colspan="3" class="text-center text-muted">No documents uploaded.</td></tr>
+                            <tr><td colspan="4" class="text-center text-muted">No documents uploaded.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
