@@ -21,11 +21,7 @@
 
 <body>
 
-<nav class="navbar fixed-top" style="background:#873260;">
-    <div class="container">
-        <span class="navbar-brand text-white fw-bold">iManageHR</span>
-    </div>
-</nav>
+
 
 <div class="login-box">
     <div class="card shadow">
@@ -53,7 +49,7 @@
                 </div>
 
                 <div class="d-grid mt-4">
-                    <button class="btn text-white" style="background:#873260;">
+                    <button class="btn text-white" style="background:#123456;">
                         Login
                     </button>
                 </div>

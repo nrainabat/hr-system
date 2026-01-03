@@ -22,7 +22,7 @@
             font-size: 1.25rem;
         }
         .offcanvas {
-            background-color: #873260; 
+            background-color: #123456; 
             color: white;
             width: 280px !important;
         }
@@ -48,7 +48,7 @@
 <body>
 
 {{-- TOP NAVBAR --}}
-<nav class="navbar fixed-top shadow-sm" style="background-color:#873260;">
+<nav class="navbar fixed-top shadow-sm" style="background-color:#123456;">
     <div class="container-fluid px-3">
         <div class="d-flex align-items-center">
             <button class="btn border-0 text-white me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">

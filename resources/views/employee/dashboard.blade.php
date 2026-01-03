@@ -66,34 +66,25 @@
                 <div class="card-body d-flex flex-column justify-content-center align-items-center">
                     <h5 class="text-muted mb-3">Quick Actions</h5>
                     <div class="d-grid gap-2 w-100">
+                        <a href="/employee/attendance" class="btn btn-outline-dark"><i class="bi bi-qr-code-scan"></i> Attendance History</a>
                         
-                        {{-- 2. Role Specific Buttons --}}
                         @if(Auth::user()->role === 'supervisor')
-                            {{-- Supervisor: Can Review Documents AND Apply for Leave --}}
+                            {{-- Supervisor Specific Action --}}
                             <a href="{{ route('supervisor.documents.index') }}" class="btn btn-outline-primary">
                                 <i class="bi bi-file-earmark-check"></i> Review Documents
                             </a>
-                            <a href="/employee/leave" class="btn btn-outline-danger">
-                                <i class="bi bi-calendar-plus"></i> Apply for Leave
-                            </a>
-
                         @elseif(Auth::user()->role === 'intern')
-                            {{-- Intern: Can Upload Document --}}
                             <a href="{{ route('intern.documents.create') }}" class="btn btn-outline-primary">
                                 <i class="bi bi-cloud-upload"></i> Upload Document
                             </a>
-
                         @else
-                            {{-- Regular Employee: Can Apply for Leave --}}
-                            <a href="/employee/leave" class="btn btn-outline-danger">
-                                <i class="bi bi-calendar-plus"></i> Apply for Leave
-                            </a>
+                            <a href="/employee/leave" class="btn btn-outline-danger"><i class="bi bi-calendar-plus"></i> Apply Leave</a>
                         @endif
                     </div>
                 </div>
             </div>
         </div>
-        
+
         {{-- My Status --}}
         <div class="col-md-4 mb-3">
             <div class="card shadow-sm h-100 border-0">
@@ -121,7 +112,22 @@
         </div>
     </div>
 
-    {{-- 3. ROLE SPECIFIC SECTIONS --}}
+    {{-- 4. LEAVE STATISTICS (Visible to ALL roles now) --}}
+    <div class="card mb-4 shadow-sm border-0">
+        <div class="card-header text-white fw-bold py-2" style="background-color: #123456;">
+            LEAVE STATISTICS - {{ date('Y') }}
+        </div>
+        <div class="card-body">
+            <div class="row g-3 text-center text-white">
+                <div class="col-md-3"><div class="p-4 rounded shadow-sm bg-primary"><h5 class="fw-bold">Total</h5><h2>{{ $totalLeaves ?? 0 }}</h2></div></div>
+                <div class="col-md-3"><div class="p-4 rounded shadow-sm bg-success"><h5 class="fw-bold">Approved</h5><h2>{{ $approvedCount ?? 0 }}</h2></div></div>
+                <div class="col-md-3"><div class="p-4 rounded shadow-sm bg-danger"><h5 class="fw-bold">Rejected</h5><h2>{{ $rejectedCount ?? 0 }}</h2></div></div>
+                <div class="col-md-3"><div class="p-4 rounded shadow-sm bg-secondary"><h5 class="fw-bold">Cancelled</h5><h2>{{ $cancelledCount ?? 0 }}</h2></div></div>
+            </div>
+        </div>
+    </div>
+
+    {{-- 3. SUPERVISOR SECTION --}}
 
     {{-- === SUPERVISOR SECTION === --}}
     @if(Auth::user()->role === 'supervisor')
@@ -234,7 +240,7 @@
 
     {{-- 5. Announcements (Visible to All) --}}
     <div class="card shadow-sm border-0">
-        <div class="card-header text-white fw-bold py-2" style="background-color: #873260;">
+        <div class="card-header text-white fw-bold py-2" style="background-color: #123456;">
             RECENT ANNOUNCEMENTS
         </div>
         <div class="card-body py-4">

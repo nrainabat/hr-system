@@ -9,7 +9,7 @@
         <div class="col-md-8">
             <div class="card shadow-sm border-0">
                 
-                <div class="card-header text-white fw-bold py-3" style="background-color: #873260;">
+                <div class="card-header text-white fw-bold py-3" style="background-color: #123456;">
                     <i class="bi bi-calendar-plus me-2"></i> Apply for Leave / WFH
                 </div>
 
@@ -64,7 +64,7 @@
 
                         <div class="d-flex justify-content-end gap-2">
                             <a href="/employee/dashboard" class="btn btn-secondary px-4">Cancel</a>
-                            <button type="submit" class="btn text-white px-4" style="background-color: #873260;">
+                            <button type="submit" class="btn text-white px-4" style="background-color: #3b6d28ff;">
                                 Submit Application
                             </button>
                         </div>

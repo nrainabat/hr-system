@@ -9,7 +9,7 @@
             <div class="card shadow-sm border-0">
                 
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold" style="color: #873260;">
+                    <h5 class="mb-0 fw-bold" style="color: #123456;">
                         <i class="bi bi-person-circle me-2"></i> My Profile
                     </h5>
                     
@@ -43,7 +43,7 @@
                                         <img src="{{ asset('storage/' . Auth::user()->profile_image) }}" 
                                              class="rounded-circle shadow-sm" 
                                              width="180" height="180" 
-                                             style="object-fit: cover; border: 4px solid #873260;"
+                                             style="object-fit: cover; border: 4px solid #123456;"
                                              alt="Profile">
                                     @else
                                         <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=873260&color=fff&size=180" 
@@ -101,7 +101,7 @@
 
                                 <div id="actionButtons" class="text-end mt-4" style="display: none;">
                                     <button type="button" class="btn btn-secondary px-4 me-2" onclick="cancelEdit()">Cancel</button>
-                                    <button type="submit" class="btn text-white px-4" style="background-color: #873260;">Save Changes</button>
+                                    <button type="submit" class="btn text-white px-4" style="background-color: #123456;">Save Changes</button>
                                 </div>
                             </div>
                         </div>
@@ -115,7 +115,7 @@
 <div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
-            <div class="modal-header text-white" style="background-color: #873260;">
+            <div class="modal-header text-white" style="background-color: #123456;">
                 <h5 class="modal-title fw-bold"><i class="bi bi-shield-lock me-2"></i> Change Password</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>

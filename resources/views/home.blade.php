@@ -11,13 +11,13 @@
     <style>
         body, * { font-family: 'Poppins', sans-serif; }
         .btn-custom { 
-            background-color: #873260; 
+            background-color: #123456; 
             color: white; 
             border: none;
             transition: all 0.3s ease;
         }
         .btn-custom:hover { 
-            background-color: #957A81; 
+            background-color: #7daccdff; 
             color: white; 
             transform: translateY(-2px);
         }
@@ -26,7 +26,7 @@
 
 <body class="bg-light d-flex flex-column min-vh-100" style="padding-top: 70px;">
 
-    <nav class="navbar navbar-expand-lg shadow-sm fixed-top" style="background-color: #873260;">
+    <nav class="navbar navbar-expand-lg shadow-sm fixed-top" style="background-color: #123456;">
         <div class="container">
             <a class="navbar-brand fw-bold text-white" href="{{ url('/') }}">iManageHR</a>
             
@@ -53,19 +53,19 @@
             <div class="row text-center">
                 <div class="col-md-4 mb-4">
                     <div class="p-4 shadow-sm rounded bg-light h-100">
-                        <h5 class="fw-bold" style="color: #873260;">Intern Management</h5>
+                        <h5 class="fw-bold" style="color: #123456;">Intern Management</h5>
                         <p class="text-muted">Add, track and update intern information with ease.</p>
                     </div>
                 </div>
                 <div class="col-md-4 mb-4">
                     <div class="p-4 shadow-sm rounded bg-light h-100">
-                        <h5 class="fw-bold" style="color: #873260;">Attendance Monitoring</h5>
+                        <h5 class="fw-bold" style="color: #123456;">Attendance Monitoring</h5>
                         <p class="text-muted">Efficiently record and analyze intern attendance.</p>
                     </div>
                 </div>
                 <div class="col-md-4 mb-4">
                     <div class="p-4 shadow-sm rounded bg-light h-100">
-                        <h5 class="fw-bold" style="color: #873260;">Performance Evaluation</h5>
+                        <h5 class="fw-bold" style="color: #123456;">Performance Evaluation</h5>
                         <p class="text-muted">Conduct evaluations and track intern performance.</p>
                     </div>
                 </div>
@@ -73,7 +73,7 @@
         </div>
     </section>
 
-    <footer class="text-center py-4 text-white mt-auto" style="background-color: #873260;">
+    <footer class="text-center py-4 text-white mt-auto" style="background-color: #123456;">
         <small>©{{ date('Y') }} iManageHR System. All Rights Reserved.</small>
     </footer>
 

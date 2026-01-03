@@ -8,7 +8,7 @@
     <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
         <div class="col-md-8">
             <div class="card shadow-sm border-0">
-                <div class="card-header text-white fw-bold py-3" style="background-color: #873260;">
+                <div class="card-header text-white fw-bold py-3" style="background-color: #123456;">
                     <i class="bi bi-cloud-upload me-2"></i> UPLOAD NEW DOCUMENT
                 </div>
                 <div class="card-body p-4">

@@ -9,7 +9,7 @@
             <h2 class="fw-bold text-dark">My Leave Applications</h2>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/employee/dashboard" class="text-decoration-none" style="color: #873260;">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="/employee/dashboard" class="text-decoration-none" style="color: #123456;">Dashboard</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Leave History</li>
                 </ol>
             </nav>
@@ -24,7 +24,7 @@
     @endif
 
     <div class="card shadow-sm border-0">
-        <div class="card-header text-white fw-bold py-3" style="background-color: #873260;">
+        <div class="card-header text-white fw-bold py-3" style="background-color: #2D3748;">
             <i class="bi bi-list-task me-2"></i> Application List
         </div>
         <div class="card-body p-0">
