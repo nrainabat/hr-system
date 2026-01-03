@@ -89,4 +89,5 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/supervisor/documents/{id}', [InternDocumentController::class, 'update'])->name('supervisor.documents.update');
 
     Route::get('/directory', [EmployeeDirectoryController::class, 'index'])->name('admin.directory');
+    Route::get('/directory/{id}/details', [App\Http\Controllers\EmployeeDirectoryController::class, 'show'])->name('directory.show');
 });

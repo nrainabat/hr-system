@@ -27,33 +27,39 @@ class UserController extends Controller
     // 2. Store the New User (No changes needed here if you save the name)
     public function store(Request $request)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
+    // ... (auth check)
 
-        $request->validate([
-            'name'       => 'required|string|max:255',
-            'username'   => 'required|string|max:255|unique:users,username',
-            'email'      => 'required|email|max:255|unique:users,email',
-            'password'   => 'required|string|min:6',
-            'role'       => 'required|in:admin,supervisor,employee,intern',
-            'department' => 'nullable|string|max:100', // Ensure this matches input name
-            'position'   => 'nullable|string|max:100',
-        ]);
+    $request->validate([
+        'name'         => 'required|string|max:255',
+        'username'     => 'required|string|max:255|unique:users,username',
+        'email'        => 'required|email|max:255|unique:users,email',
+        'password'     => 'required|string|min:6',
+        'role'         => 'required|in:admin,supervisor,employee,intern',
+        'department'   => 'nullable|string|max:100',
+        'position'     => 'nullable|string|max:100',
+        'phone_number' => 'nullable|string|max:20',
+        'gender'       => 'nullable|in:Male,Female',
+        'about'        => 'nullable|string|max:500',
+        'address'      => 'nullable|string|max:500', // <--- Validation
+    ]);
 
-        User::create([
-            'name'       => $request->name,
-            'username'   => $request->username,
-            'email'      => $request->email,
-            'password'   => Hash::make($request->password),
-            'role'       => $request->role,
-            'department' => $request->department,
-            'position'   => $request->position,
-            'status'     => 'active',
-        ]);
+    User::create([
+        'name'         => $request->name,
+        'username'     => $request->username,
+        'email'        => $request->email,
+        'password'     => Hash::make($request->password),
+        'role'         => $request->role,
+        'department'   => $request->department,
+        'position'     => $request->position,
+        'status'       => 'active',
+        'phone_number' => $request->phone_number,
+        'gender'       => $request->gender,
+        'about'        => $request->about,
+        'address'      => $request->address, // <--- Save
+    ]);
 
-        return redirect()->route('admin.users.create')
-            ->with('success', 'User created successfully!');
+    return redirect()->route('admin.users.create')
+        ->with('success', 'User created successfully!');
     }
 
     public function dashboard()

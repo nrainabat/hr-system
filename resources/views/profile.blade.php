@@ -8,6 +8,7 @@
         <div class="col-md-10">
             <div class="card shadow-sm border-0">
                 
+                {{-- Card Header --}}
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-bold" style="color: #123456;">
                         <i class="bi bi-person-circle me-2"></i> My Profile
@@ -37,8 +38,10 @@
                         @method('PUT')
 
                         <div class="row">
+                            {{-- LEFT COLUMN: Profile Image & Summary --}}
                             <div class="col-md-4 text-center border-end">
                                 <div class="mb-3 position-relative d-inline-block">
+                                    {{-- Profile Image Logic --}}
                                     @if(Auth::user()->profile_image)
                                         <img src="{{ asset('storage/' . Auth::user()->profile_image) }}" 
                                              class="rounded-circle shadow-sm" 
@@ -46,11 +49,12 @@
                                              style="object-fit: cover; border: 4px solid #123456;"
                                              alt="Profile">
                                     @else
-                                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=873260&color=fff&size=180" 
+                                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=123456&color=fff&size=180" 
                                              class="rounded-circle shadow-sm" 
                                              alt="Default Profile">
                                     @endif
                                     
+                                    {{-- Upload Button (Hidden initially) --}}
                                     <label class="position-absolute bottom-0 end-0 bg-white rounded-circle shadow p-2" 
                                            id="photoUploadBtn" style="cursor: pointer; display: none;">
                                         <i class="bi bi-camera-fill text-dark fs-5"></i>
@@ -58,13 +62,16 @@
                                     </label>
                                 </div>
                                 <h4 class="fw-bold mt-2">{{ Auth::user()->name }}</h4>
-                                <p class="text-muted">{{ Auth::user()->department ?? 'No Department' }}</p>
+                                <p class="text-muted mb-0">{{ Auth::user()->position ?? 'No Position' }}</p>
+                                <small class="text-muted">{{ Auth::user()->department ?? 'No Department' }}</small>
                             </div>
 
+                            {{-- RIGHT COLUMN: User Details Form --}}
                             <div class="col-md-8 ps-md-5">
                                 <fieldset disabled id="profileFields">
                                     <div class="row g-3">
                                         
+                                        {{-- 1. Basic Info --}}
                                         <div class="col-md-6">
                                             <label class="form-label fw-semibold">Full Name</label>
                                             <input type="text" name="name" class="form-control editable" value="{{ Auth::user()->name }}" required>
@@ -80,8 +87,39 @@
                                             <input type="email" name="email" class="form-control editable" value="{{ Auth::user()->email }}" required>
                                         </div>
 
+                                        {{-- 2. New Details: Phone & Gender --}}
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Phone Number</label>
+                                            <input type="text" name="phone_number" class="form-control editable" 
+                                                   value="{{ Auth::user()->phone_number }}" placeholder="e.g. +60123456789">
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Gender</label>
+                                            <select name="gender" class="form-select editable">
+                                                <option value="" disabled {{ !Auth::user()->gender ? 'selected' : '' }}>Select Gender</option>
+                                                <option value="Male" {{ Auth::user()->gender == 'Male' ? 'selected' : '' }}>Male</option>
+                                                <option value="Female" {{ Auth::user()->gender == 'Female' ? 'selected' : '' }}>Female</option>
+                                            </select>
+                                        </div>
+
+                                        {{-- 3. New Details: About Me --}}
+                                        <div class="col-md-12">
+                                            <label class="form-label fw-semibold">About Me</label>
+                                            <textarea name="about" class="form-control editable" rows="3" 
+                                                      placeholder="Brief bio about yourself...">{{ Auth::user()->about }}</textarea>
+                                        </div>
+
+                                        {{-- 4. New Details: Address --}}
+                                        <div class="col-md-12">
+                                            <label class="form-label fw-semibold">Residential Address</label>
+                                            <textarea name="address" class="form-control editable" rows="2" 
+                                                      placeholder="Full residential address...">{{ Auth::user()->address }}</textarea>
+                                        </div>
+
                                         <hr class="my-4">
 
+                                        {{-- 5. Read-Only System Fields --}}
                                         <div class="col-md-6">
                                             <label class="form-label fw-semibold text-muted">Department</label>
                                             <input type="text" class="form-control bg-light" value="{{ Auth::user()->department }}" readonly>
@@ -92,13 +130,14 @@
                                             <input type="text" class="form-control bg-light" value="{{ Auth::user()->position }}" readonly>
                                         </div>
 
-                                        <div class="col-md-6">
+                                        <div class="col-md-12">
                                             <label class="form-label fw-semibold text-muted">Role</label>
                                             <input type="text" class="form-control bg-light" value="{{ ucfirst(Auth::user()->role) }}" readonly>
                                         </div>
                                     </div>
                                 </fieldset>
 
+                                {{-- Action Buttons (Hidden by default) --}}
                                 <div id="actionButtons" class="text-end mt-4" style="display: none;">
                                     <button type="button" class="btn btn-secondary px-4 me-2" onclick="cancelEdit()">Cancel</button>
                                     <button type="submit" class="btn text-white px-4" style="background-color: #123456;">Save Changes</button>
@@ -112,6 +151,7 @@
     </div>
 </div>
 
+{{-- Password Change Modal --}}
 <div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
@@ -164,12 +204,12 @@
         const fieldset = document.getElementById('profileFields');
         fieldset.disabled = false;
 
-        // 2. BUT, immediately lock the fields we don't want editable
-        // We select all inputs inside the fieldset that DO NOT have the 'editable' class
-        const readOnlyInputs = fieldset.querySelectorAll('input:not(.editable)');
+        // 2. Lock fields that should NOT be editable (those without 'editable' class)
+        const readOnlyInputs = fieldset.querySelectorAll('input:not(.editable), select:not(.editable), textarea:not(.editable)');
         readOnlyInputs.forEach(input => {
-            input.readOnly = true; // Make them explicitly read-only
-            input.classList.add('bg-light'); // Keep them grey
+            input.readOnly = true; 
+            if(input.tagName === 'SELECT') input.disabled = true; // Selects need disabled, not readOnly
+            input.classList.add('bg-light');
         });
 
         // 3. Show Buttons
@@ -182,7 +222,7 @@
         location.reload();
     }
 
-    // Automatically re-open modal if there are password errors after submission
+    // Automatically re-open modal if there are password errors
     @if($errors->has('current_password') || $errors->has('new_password'))
         var myModal = new bootstrap.Modal(document.getElementById('passwordModal'));
         myModal.show();

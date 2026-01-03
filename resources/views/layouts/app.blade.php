@@ -130,14 +130,14 @@
                 @if(Auth::user()->role === 'admin')
                     {{-- Users Collapsible --}}
                     <a class="nav-link" data-bs-toggle="collapse" href="#adminUsersMenu" role="button" aria-expanded="false">
-                        <span><i class="bi bi-people me-2"></i> User Management</span>
+                        <span><i class="bi bi-people me-2"></i> Employee</span>
                         <i class="bi bi-chevron-right"></i>
                     </a>
                     <div class="collapse sub-menu" id="adminUsersMenu">
                         <nav class="nav flex-column">
                             <a class="nav-link" href="{{ route('admin.users.create') }}">New Employee</a>
                             {{-- Assuming you have a route list --}}
-                            <a class="nav-link" href="/admin/directory">Employee Directory</a>
+                            <a class="nav-link" href="{{ route('admin.directory') }}">Employee Directory</a>
                         </nav>
                     </div>
                 @endif
@@ -162,11 +162,6 @@
                             <a class="nav-link" href="{{ route('leave.history') }}">Application History</a>
                         </nav>
                     </div>
-
-                    {{-- Employee Directory (Direct) --}}
-                    <a class="nav-link" href="{{ route('directory.index') }}">
-                        <span><i class="bi bi-person-lines-fill me-2"></i> Employee Directory</span>
-                    </a>
                 @endif
 
 

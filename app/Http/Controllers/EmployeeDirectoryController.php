@@ -32,4 +32,26 @@ class EmployeeDirectoryController extends Controller
 
         return view('admin.directory', compact('users'));
     }
-}
+
+    public function show($id)
+    {
+        $user = User::findOrFail($id);
+    // Prepare data for the modal
+        return response()->json([
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => ucfirst($user->role),
+            'role_class' => match($user->role) {
+                'admin' => 'bg-danger',
+                'supervisor' => 'bg-warning text-dark',
+                'intern' => 'bg-info text-dark',
+                default => 'bg-primary'
+            },
+            'position' => $user->position ?? 'Not Assigned',
+            'department' => $user->department ?? 'N/A',
+            'phone_number' => $user->phone_number ?? 'N/A',
+            'location' => $user->department ? $user->department . ' Wing' : 'Main Office',
+            'joined_date' => $user->created_at ? $user->created_at->format('d M Y') : 'N/A',
+    ]);
+    }
+}      

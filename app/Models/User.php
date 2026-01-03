@@ -13,9 +13,13 @@ class User extends Authenticatable
         'password',
         'role',
         'status',
-        'department',    // New Field
-        'position',      // New Field
-        'profile_image', // New Field
+        'department',    
+        'position',     
+        'profile_image', 
+        'phone_number',
+        'gender',
+        'about',
+        'address',
     ];
 
     protected $hidden = [

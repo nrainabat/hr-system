@@ -16,37 +16,34 @@ class ProfileController extends Controller
     }
 
     public function update(Request $request)
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        // 1. Validate (Added username, removed department/position)
-        $request->validate([
-            'name'          => 'required|string|max:255',
-            'username'      => 'required|string|max:255|unique:users,username,' . $user->id,
-            'email'         => 'required|email|max:255|unique:users,email,' . $user->id,
-            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+    $request->validate([
+        'name'          => 'required|string|max:255',
+        'username'      => 'required|string|max:255|unique:users,username,' . $user->id,
+        'email'         => 'required|email|max:255|unique:users,email,' . $user->id,
+        'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'phone_number'  => 'nullable|string|max:20',
+        'gender'        => 'nullable|in:Male,Female',
+        'about'         => 'nullable|string|max:500',
+        'address'       => 'nullable|string|max:500', // <--- Validation
+    ]);
 
-        // 2. Handle Image
-        if ($request->hasFile('profile_image')) {
-            if ($user->profile_image) {
-                Storage::disk('public')->delete($user->profile_image);
-            }
-            $user->profile_image = $request->file('profile_image')->store('profile_images', 'public');
-        }
+    // ... (image handling)
 
-        // 3. Update Allowed Fields Only
-        $user->name = $request->name;
-        $user->username = $request->username; // Now updatable
-        $user->email = $request->email;
-        
-        // Note: Department and Position are NOT updated here. 
-        // They stay as they were defined by Admin.
+    $user->name = $request->name;
+    $user->username = $request->username;
+    $user->email = $request->email;
+    $user->phone_number = $request->phone_number;
+    $user->gender = $request->gender;
+    $user->about = $request->about;
+    $user->address = $request->address; // <--- Update
 
-        $user->save();
+    $user->save();
 
-        return redirect()->route('profile.show')->with('success', 'Profile updated successfully!');
-    }
+    return redirect()->route('profile.show')->with('success', 'Profile updated successfully!');
+}
 
     public function updatePassword(Request $request)
     {
