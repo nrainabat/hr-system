@@ -16,12 +16,23 @@ class DashboardController extends Controller
     public function admin()
     {
         abort_if(Auth::user()->role !== 'admin', 403);
+
+        // 1. Counters
         $totalUsers = User::count(); 
         $totalInterns = User::where('role', 'intern')->count();
         $totalEmployees = User::where('role', 'employee')->count();
         $totalSupervisors = User::where('role', 'supervisor')->count();
 
-        return view('admin.dashboard', compact('totalUsers', 'totalInterns', 'totalEmployees', 'totalSupervisors'));
+        // 2. Recent Activity (New Users)
+        $recentUsers = User::latest()->take(5)->get();
+
+        return view('admin.dashboard', compact(
+            'totalUsers', 
+            'totalInterns', 
+            'totalEmployees', 
+            'totalSupervisors',
+            'recentUsers'
+        ));
     }
 
     // Supervisor Dashboard

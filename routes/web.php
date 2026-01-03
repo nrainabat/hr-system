@@ -75,6 +75,7 @@ Route::middleware(['auth'])->group(function () {
 
 // INTERN DOCUMENT UPLOAD ROUTE
 use App\Http\Controllers\internDocumentController;
+use App\Http\Controllers\EmployeeDirectoryController; 
 Route::middleware(['auth'])->group(function () {
     // 1. Show the list (History)
     Route::get('/intern/documents', [InternDocumentController::class, 'index'])->name('intern.documents.index');
@@ -86,4 +87,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/supervisor/documents', [InternDocumentController::class, 'supervisorIndex'])->name('supervisor.documents.index');
     Route::get('/supervisor/documents/{id}/review', [InternDocumentController::class, 'edit'])->name('supervisor.documents.review');
     Route::put('/supervisor/documents/{id}', [InternDocumentController::class, 'update'])->name('supervisor.documents.update');
+
+    Route::get('/directory', [EmployeeDirectoryController::class, 'index'])->name('admin.directory');
 });

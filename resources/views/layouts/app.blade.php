@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'iManageHR')</title>
 
-    {{-- Bootstrap CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -29,17 +28,38 @@
         .offcanvas .btn-close {
             filter: invert(1) grayscale(100%) brightness(200%);
         }
+        /* Main Link Styles */
         .offcanvas-body .nav-link {
             color: rgba(255, 255, 255, 0.85);
             font-size: 1rem;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between; /* Pushes arrow to the right */
+            align-items: center;
         }
         .offcanvas-body .nav-link:hover {
             color: #fff;
             background-color: rgba(255, 255, 255, 0.1);
-            padding-left: 10px;
             transition: all 0.3s;
+        }
+        /* Submenu Styles */
+        .sub-menu {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        .sub-menu .nav-link {
+            padding-left: 3rem; /* Indent sub-items */
+            font-size: 0.95rem;
+            border-bottom: none;
+        }
+        /* Arrow Rotation */
+        .nav-link[aria-expanded="true"] .bi-chevron-right {
+            transform: rotate(90deg);
+            transition: transform 0.3s;
+        }
+        .bi-chevron-right {
+            transition: transform 0.3s;
+            font-size: 0.8rem;
         }
     </style>
     @stack('styles')
@@ -86,64 +106,97 @@
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     
-    <div class="offcanvas-body">
+    <div class="offcanvas-body p-0">
         <nav class="nav flex-column">
             @auth
-                {{-- ADMIN LINKS --}}
+
+                {{-- 1. DASHBOARD (Direct Link - No Arrow) --}}
                 @if(Auth::user()->role === 'admin')
-                    <a class="nav-link" href="/admin/dashboard">Dashboard</a>
-                    <a class="nav-link" href="/admin/users">Users</a>
-                    <a class="nav-link" href="/admin/employees">Employees</a>
-                    <a class="nav-link" href="/admin/interns">Interns</a>
+                    <a class="nav-link" href="/admin/dashboard">
+                        <span><i class="bi bi-speedometer2 me-2"></i> Dashboard</span>
+                    </a>
+                @elseif(Auth::user()->role === 'supervisor')
+                    <a class="nav-link" href="/supervisor/dashboard">
+                        <span><i class="bi bi-speedometer2 me-2"></i> Dashboard</span>
+                    </a>
+                @else
+                    <a class="nav-link" href="{{ route('dashboard') }}">
+                        <span><i class="bi bi-speedometer2 me-2"></i> Dashboard</span>
+                    </a>
                 @endif
 
-                {{-- EMPLOYEE & INTERN SHARED LINKS --}}
-                @if(Auth::user()->role === 'employee' || Auth::user()->role === 'intern' || Auth::user()->role === 'supervisor')
-                    
-                    <a class="nav-link" href="{{ route('dashboard') }}">
-                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
-                    </a>
-                    
-                    <a class="nav-link" href="{{ route('attendance.index') }}">
-                        <i class="bi bi-calendar-check me-2"></i> Attendance
-                    </a>
 
-                    {{-- LEAVE DROPDOWN --}}
-                    <div class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-briefcase me-2"></i> Leave
-                        </a>
-                        <ul class="dropdown-menu border-0 shadow-sm" style="background-color: rgba(255, 255, 255, 0.9);">
-                            <li>
-                                <a class="dropdown-item text-dark" href="{{ route('leave.create') }}">
-                                    <i class="bi bi-pencil-square me-2"></i> Apply Form
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item text-dark" href="{{ route('leave.history') }}">
-                                    <i class="bi bi-list-ul me-2"></i> List of Application
-                                </a>
-                            </li>
-                        </ul>
+                {{-- 2. ADMIN LINKS --}}
+                @if(Auth::user()->role === 'admin')
+                    {{-- Users Collapsible --}}
+                    <a class="nav-link" data-bs-toggle="collapse" href="#adminUsersMenu" role="button" aria-expanded="false">
+                        <span><i class="bi bi-people me-2"></i> User Management</span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                    <div class="collapse sub-menu" id="adminUsersMenu">
+                        <nav class="nav flex-column">
+                            <a class="nav-link" href="{{ route('admin.users.create') }}">New Employee</a>
+                            {{-- Assuming you have a route list --}}
+                            <a class="nav-link" href="/admin/directory">Employee Directory</a>
+                        </nav>
                     </div>
                 @endif
 
-                {{-- SUPERVISOR LINKS --}}
-                @if(Auth::user()->role === 'supervisor')
-                    {{-- NEW: Navigation for Document Review --}}
-                    <a class="nav-link" href="{{ route('supervisor.documents.index') }}">
-                        <i class="bi bi-file-earmark-check me-2"></i> Review Documents
+
+                {{-- 3. EMPLOYEE & INTERN SHARED LINKS --}}
+                @if(Auth::user()->role === 'employee' || Auth::user()->role === 'intern' || Auth::user()->role === 'supervisor')
+                    
+                    {{-- Attendance (Direct) --}}
+                    <a class="nav-link" href="{{ route('attendance.index') }}">
+                        <span><i class="bi bi-calendar-check me-2"></i> Attendance</span>
                     </a>
 
-                    {{-- Optional: Keep or Remove 'My Interns' if not used --}}
-                    {{-- <a class="nav-link" href="/supervisor/interns">My Interns</a> --}}
+                    {{-- Leave Collapsible --}}
+                    <a class="nav-link" data-bs-toggle="collapse" href="#leaveMenu" role="button" aria-expanded="false">
+                        <span><i class="bi bi-briefcase me-2"></i> Leave Management</span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                    <div class="collapse sub-menu" id="leaveMenu">
+                        <nav class="nav flex-column">
+                            <a class="nav-link" href="{{ route('leave.create') }}">Apply Leave</a>
+                            <a class="nav-link" href="{{ route('leave.history') }}">Application History</a>
+                        </nav>
+                    </div>
+
+                    {{-- Employee Directory (Direct) --}}
+                    <a class="nav-link" href="{{ route('directory.index') }}">
+                        <span><i class="bi bi-person-lines-fill me-2"></i> Employee Directory</span>
+                    </a>
                 @endif
 
-                {{-- INTERN --}}
+
+                {{-- 4. INTERN SPECIFIC (Documents) --}}
                 @if(Auth::user()->role === 'intern')
-                    <a class="nav-link" href="{{ route('intern.documents.index') }}">
-                        <i class="bi bi-file-earmark-text me-2"></i> Documents
+                    <a class="nav-link" data-bs-toggle="collapse" href="#internDocsMenu" role="button" aria-expanded="false">
+                        <span><i class="bi bi-file-earmark-text me-2"></i> My Documents</span>
+                        <i class="bi bi-chevron-right"></i>
                     </a>
+                    <div class="collapse sub-menu" id="internDocsMenu">
+                        <nav class="nav flex-column">
+                            <a class="nav-link" href="{{ route('intern.documents.create') }}">Upload New</a>
+                            <a class="nav-link" href="{{ route('intern.documents.index') }}">View History</a>
+                        </nav>
+                    </div>
+                @endif
+
+
+                {{-- 5. SUPERVISOR SPECIFIC --}}
+                @if(Auth::user()->role === 'supervisor')
+                    <a class="nav-link" data-bs-toggle="collapse" href="#supervisorDocsMenu" role="button" aria-expanded="false">
+                        <span><i class="bi bi-file-earmark-check me-2"></i> Document Reviews</span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                    <div class="collapse sub-menu" id="supervisorDocsMenu">
+                        <nav class="nav flex-column">
+                            <a class="nav-link" href="{{ route('supervisor.documents.index') }}">Pending Reviews</a>
+                            {{-- Add more supervisor links here if needed --}}
+                        </nav>
+                    </div>
                 @endif
 
             @endauth
