@@ -96,7 +96,7 @@ class OrganizationController extends Controller
         // 3. Get list of Staff for the dropdown
         $employees = User::whereIn('role', ['employee', 'intern'])->orderBy('name')->get();
 
-        return view('admin.organization.structure_assignments', compact('staffList', 'supervisors', 'employees'));
+        return view('admin.organization.structAssignment', compact('staffList', 'supervisors', 'employees'));
     }
 
     // ==========================================
@@ -123,7 +123,7 @@ class OrganizationController extends Controller
                              ->get();
         }
 
-        return view('admin.organization.structure_teams', compact('departments', 'selectedDept', 'employees'));
+        return view('admin.organization.structTeams', compact('departments', 'selectedDept', 'employees'));
     }
 
     // ==========================================

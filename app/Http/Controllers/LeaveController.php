@@ -11,7 +11,9 @@ class LeaveController extends Controller
     // 1. Show the form
     public function create()
     {
-        return view('employee.leave'); // Make sure this matches your view folder name
+    // Fetch types from DB instead of hardcoding
+    $leaveTypes = LeaveType::all();
+    return view('employee.leave', compact('leaveTypes'));
     }
 
     // 2. Store the data (Make the function successful)

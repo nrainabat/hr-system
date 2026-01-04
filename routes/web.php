@@ -120,14 +120,33 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/jobs/{id}', [OrganizationController::class, 'updateJob'])->name('jobs.update'); 
         Route::delete('/jobs/{id}', [OrganizationController::class, 'destroyJob'])->name('jobs.delete');
 
-       // 1. Supervisor Assigned View
-        Route::get('/structure/assignments', [OrganizationController::class, 'structAssignment'])->name('structAssignment');
+        // 1. Supervisor Assignments
+        Route::get('/structure/assignments', [OrganizationController::class, 'structureAssignments'])->name('structure.assignments');
         
-        // 2. Team Department View
+        // 2. Team Teams
         Route::get('/structure/teams', [OrganizationController::class, 'structureTeams'])->name('structure.teams');
 
         // Actions
         Route::post('/structure/assign', [OrganizationController::class, 'assignSupervisor'])->name('structure.assign');
         Route::post('/structure/unassign/{id}', [OrganizationController::class, 'unassignSupervisor'])->name('structure.unassign');
     });
+
+    
+});
+
+//LEAVE MANAGEMENT - ADMIN
+use App\Http\Controllers\AdminLeaveController;
+Route::middleware(['auth'])->prefix('admin/leave')->name('admin.leave.')->group(function() {
+    // 1. Leave Types
+    Route::get('/types', [AdminLeaveController::class, 'indexTypes'])->name('types');
+    Route::post('/types', [AdminLeaveController::class, 'storeType'])->name('types.store');
+    Route::delete('/types/{id}', [AdminLeaveController::class, 'destroyType'])->name('types.delete');
+
+    // 2. Leave Requests
+    Route::get('/requests', [AdminLeaveController::class, 'indexRequests'])->name('requests');
+    Route::put('/requests/{id}', [AdminLeaveController::class, 'updateStatus'])->name('status');
+
+    // 3. Calendar
+    Route::get('/calendar', [AdminLeaveController::class, 'calendar'])->name('calendar');
+    Route::get('/calendar/events', [AdminLeaveController::class, 'getCalendarEvents'])->name('calendar.events');
 });

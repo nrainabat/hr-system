@@ -32,11 +32,9 @@
                             <label for="leave_type" class="form-label fw-medium">Leave Type <span class="text-danger">*</span></label>
                             <select class="form-select" id="leave_type" name="leave_type" required>
                                 <option value="" selected disabled>Select leave type...</option>
-                                <option value="annual">Annual Leave</option>
-                                <option value="medical">Medical Leave (MC)</option>
-                                <option value="emergency">Emergency Leave</option>
-                                <option value="unpaid">Unpaid Leave</option>
-                                <option value="wfh">Work From Home (WFH)</option>
+                                @foreach($leaveTypes as $type)
+                                <option value="{{ $type->name }}">{{ $type->name }}</option>
+                                @endforeach
                             </select>
                         </div>
 
