@@ -16,10 +16,6 @@
                             <label class="form-label">Department Name</label>
                             <input type="text" name="name" class="form-control" placeholder="e.g. Human Resources" required>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Manager Name (Optional)</label>
-                            <input type="text" name="manager_name" class="form-control" placeholder="e.g. John Doe">
-                        </div>
                         <button type="submit" class="btn text-white w-100" style="background-color: #123456;">
                         <i class="bi bi-plus-lg"></i> Add Department
                         </button>

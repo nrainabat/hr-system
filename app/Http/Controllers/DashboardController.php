@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\Attendance;
 use App\Models\LeaveApplication;
 use App\Models\User; 
@@ -17,24 +18,46 @@ class DashboardController extends Controller
     {
         abort_if(Auth::user()->role !== 'admin', 403);
 
-        // 1. Counters
+        // 1. User Counters
         $totalUsers = User::count(); 
         $totalInterns = User::where('role', 'intern')->count();
         $totalEmployees = User::where('role', 'employee')->count();
         $totalSupervisors = User::where('role', 'supervisor')->count();
 
-        // 2. Recent Activity (New Users)
-        $recentUsers = User::latest()->take(5)->get();
+        // 2. Attendance Counters (Today)
+        $today = Carbon::today();
+        $presentCount = Attendance::whereDate('date', $today)->whereNotNull('clock_in')->count();
+        $lateCount = Attendance::whereDate('date', $today)
+                        ->whereNotNull('clock_in')
+                        ->whereTime('clock_in', '>', '09:00:00')
+                        ->count();
+        $absentCount = $totalUsers - $presentCount;
+        $attendancePercentage = $totalUsers > 0 ? round(($presentCount / $totalUsers) * 100) : 0;
+
+        // 3. Department Data (For Chart)
+        $departmentData = User::select('department', DB::raw('count(*) as total'))
+                              ->whereNotNull('department')
+                              ->groupBy('department')
+                              ->get();
+        
+        $deptLabels = $departmentData->pluck('department');
+        $deptCounts = $departmentData->pluck('total');
+
+        // 4. Pending Leave Requests (NEW LIST)
+        $pendingLeaveRequests = LeaveApplication::with('user')
+                                    ->where('status', 'pending')
+                                    ->latest()
+                                    ->take(5)
+                                    ->get();
 
         return view('admin.dashboard', compact(
-            'totalUsers', 
-            'totalInterns', 
-            'totalEmployees', 
-            'totalSupervisors',
-            'recentUsers'
+            'totalUsers', 'totalInterns', 'totalEmployees', 'totalSupervisors',
+            'presentCount', 'lateCount', 'absentCount', 'attendancePercentage',
+            'deptLabels', 'deptCounts',
+            'pendingLeaveRequests' // <--- Passed to view
         ));
     }
-
+    
     // Supervisor Dashboard
     public function supervisor()
     {

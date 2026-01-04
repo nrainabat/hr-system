@@ -14,18 +14,19 @@
         </div>
     </div>
 
-    {{-- 2. Statistics Cards --}}
+    {{-- 2. Organization Overview (Minimalist & Formal) --}}
+    <h5 class="fw-bold mb-3 ps-1" style="color: #123456;">Organization Overview</h5>
     <div class="row g-3 mb-4">
         {{-- Total Users --}}
         <div class="col-md-3">
-            <div class="card shadow-sm border-0 h-100" style="background-color: #123456; color: white;">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase opacity-75 mb-1">Total Users</h6>
-                            <h2 class="fw-bold mb-0">{{ $totalUsers }}</h2>
-                        </div>
-                        <i class="bi bi-people-fill display-4 opacity-50"></i>
+            <div class="card shadow-sm border-0 h-100 border-start border-4" style="border-color: #123456 !important;">
+                <div class="card-body p-4 d-flex align-items-center">
+                    <div class="rounded-circle p-3 me-3" style="background-color: rgba(18, 52, 86, 0.1);">
+                        <i class="bi bi-people-fill fs-4" style="color: #123456;"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-uppercase small mb-1">Total Employees</h6>
+                        <h3 class="fw-bold mb-0" style="color: #123456;">{{ $totalUsers }}</h3>
                     </div>
                 </div>
             </div>
@@ -33,14 +34,14 @@
 
         {{-- Employees --}}
         <div class="col-md-3">
-            <div class="card shadow-sm border-0 h-100 bg-primary text-white">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase opacity-75 mb-1">Employees</h6>
-                            <h2 class="fw-bold mb-0">{{ $totalEmployees }}</h2>
-                        </div>
-                        <i class="bi bi-briefcase-fill display-4 opacity-50"></i>
+            <div class="card shadow-sm border-0 h-100 border-start border-4 border-primary">
+                <div class="card-body p-4 d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                        <i class="bi bi-briefcase-fill text-primary fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-uppercase small mb-1">Staff</h6>
+                        <h3 class="fw-bold mb-0 text-dark">{{ $totalEmployees }}</h3>
                     </div>
                 </div>
             </div>
@@ -48,14 +49,14 @@
 
         {{-- Supervisors --}}
         <div class="col-md-3">
-            <div class="card shadow-sm border-0 h-100 bg-success text-white">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase opacity-75 mb-1">Supervisors</h6>
-                            <h2 class="fw-bold mb-0">{{ $totalSupervisors }}</h2>
-                        </div>
-                        <i class="bi bi-person-badge-fill display-4 opacity-50"></i>
+            <div class="card shadow-sm border-0 h-100 border-start border-4 border-success">
+                <div class="card-body p-4 d-flex align-items-center">
+                    <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                        <i class="bi bi-person-badge-fill text-success fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-uppercase small mb-1">Supervisors</h6>
+                        <h3 class="fw-bold mb-0 text-dark">{{ $totalSupervisors }}</h3>
                     </div>
                 </div>
             </div>
@@ -63,75 +64,129 @@
 
         {{-- Interns --}}
         <div class="col-md-3">
-            <div class="card shadow-sm border-0 h-100 bg-warning text-dark">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase opacity-75 mb-1">Interns</h6>
-                            <h2 class="fw-bold mb-0">{{ $totalInterns }}</h2>
-                        </div>
-                        <i class="bi bi-mortarboard-fill display-4 opacity-50"></i>
+            <div class="card shadow-sm border-0 h-100 border-start border-4 border-warning">
+                <div class="card-body p-4 d-flex align-items-center">
+                    <div class="bg-warning bg-opacity-10 rounded-circle p-3 me-3">
+                        <i class="bi bi-mortarboard-fill text-warning fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-uppercase small mb-1">Interns</h6>
+                        <h3 class="fw-bold mb-0 text-dark">{{ $totalInterns }}</h3>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    {{-- 3. Today's Attendance --}}
+    <h5 class="fw-bold mb-3 mt-4 ps-1" style="color: #123456;">Today's Attendance</h5>
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-end mb-2">
+                        <h4 class="fw-bold mb-0">{{ $attendancePercentage }}% <span class="text-muted fs-6 fw-normal">Attendance Rate</span></h4>
+                        <span class="text-muted small">{{ date('d M Y') }}</span>
+                    </div>
+                    
+                    {{-- Progress Bar --}}
+                    <div class="progress" style="height: 25px; border-radius: 15px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ $attendancePercentage }}%">
+                            {{ $presentCount }} Present
+                        </div>
+                        <div class="progress-bar bg-light text-muted" role="progressbar" style="width: {{ 100 - $attendancePercentage }}%">
+                            {{ $absentCount }} Absent
+                        </div>
+                    </div>
+
+                    <div class="row mt-4 text-center">
+                        <div class="col-4 border-end">
+                            <h5 class="fw-bold mb-0 text-success">{{ $presentCount }}</h5>
+                            <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Present</small>
+                        </div>
+                        <div class="col-4 border-end">
+                            <h5 class="fw-bold mb-0 text-warning">{{ $lateCount }}</h5>
+                            <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Late Arrival</small>
+                        </div>
+                        <div class="col-4">
+                            <h5 class="fw-bold mb-0 text-danger">{{ $absentCount }}</h5>
+                            <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Absent</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {{-- Clock In Action --}}
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100 bg-dark text-white">
+                <div class="card-body p-4 d-flex flex-column justify-content-center align-items-center text-center">
+                    <i class="bi bi-clock-history display-4 mb-3 text-warning"></i>
+                    <h5 class="fw-light">Current Server Time</h5>
+                    <h2 class="fw-bold" id="liveClock">{{ date('H:i A') }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     {{-- 5. Pending Leave Requests & Quick Actions --}}
     <div class="row">
-        {{-- 3. Recent Users Table --}}
+        {{-- LEFT: Pending Leave Requests Table --}}
         <div class="col-lg-8 mb-4">
             <div class="card shadow-sm border-0 h-100">
-                <div class="card-header text-white fw-bold py-3" style="background-color: #2D3748;">
-                    <i class="bi bi-clock-history me-2"></i> RECENTLY JOINED USERS
+                <div class="card-header text-white fw-bold py-3 d-flex justify-content-between align-items-center" style="background-color: #d97706;">
+                    <span><i class="bi bi-hourglass-split me-2"></i> Pending Leave Requests</span>
+                    <span class="badge bg-white text-dark">{{ count($pendingLeaveRequests) }} New</span>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="ps-4">Name</th>
-                                    <th>Role</th>
-                                    <th>Date Joined</th>
+                                    <th class="ps-4">Employee</th>
+                                    <th>Leave Type</th>
+                                    <th>Dates</th>
+                                    <th>Duration</th>
                                     <th class="text-end pe-4">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($recentUsers as $user)
+                                @forelse($pendingLeaveRequests as $leave)
                                     <tr>
                                         <td class="ps-4 fw-semibold">
                                             <div class="d-flex align-items-center">
                                                 <div class="rounded-circle bg-light d-flex justify-content-center align-items-center me-2" style="width: 35px; height: 35px;">
                                                     <i class="bi bi-person text-muted"></i>
                                                 </div>
-                                                {{ $user->name }}
+                                                {{ $leave->user->name ?? 'Unknown' }}
                                             </div>
                                         </td>
-                                        <td>
-                                            @if($user->role == 'admin') <span class="badge bg-danger">Admin</span>
-                                            @elseif($user->role == 'supervisor') <span class="badge bg-success">Supervisor</span>
-                                            @elseif($user->role == 'intern') <span class="badge bg-warning text-dark">Intern</span>
-                                            @else <span class="badge bg-primary">Employee</span>
-                                            @endif
+                                        <td>{{ ucfirst($leave->leave_type) }}</td>
+                                        <td class="small text-muted">
+                                            {{ \Carbon\Carbon::parse($leave->start_date)->format('d M') }} - 
+                                            {{ \Carbon\Carbon::parse($leave->end_date)->format('d M') }}
                                         </td>
-                                        <td class="text-muted small">{{ $user->created_at->format('d M Y') }}</td>
+                                        <td>{{ $leave->days }} Day(s)</td>
                                         <td class="text-end pe-4">
-                                            <span class="badge bg-light text-success border border-success">Active</span>
+                                            <span class="badge bg-warning text-dark">Pending</span>
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="4" class="text-center py-4 text-muted">No users found.</td></tr>
+                                    <tr>
+                                        <td colspan="5" class="text-center py-5 text-muted">
+                                            <i class="bi bi-check-circle display-4 d-block mb-2 text-success opacity-50"></i>
+                                            No pending leave requests.
+                                        </td>
+                                    </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
                 </div>
-                <div class="card-footer bg-white text-center py-3">
-                    <a href="{{ route('admin.users.create') }}" class="text-decoration-none fw-bold text-dark">View All Users &rarr;</a>
-                </div>
             </div>
         </div>
 
-        {{-- 4. Quick Actions --}}
+        {{-- RIGHT: Quick Actions --}}
         <div class="col-lg-4 mb-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-white py-3 border-bottom">
@@ -156,6 +211,78 @@
                 </div>
             </div>
         </div>
+
+    {{-- 4. Company Structure (Chart) --}}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="fw-bold mb-0 text-dark">Employee Distribution by Department</h6>
+                </div>
+                <div class="card-body p-4">
+                    {{-- Canvas for Chart.js --}}
+                    <canvas id="departmentChart" style="max-height: 250px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 </div>
+
+@push('scripts')
+{{-- Chart Script --}}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Live Clock (Optional)
+        setInterval(() => {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            const clockElement = document.getElementById('liveClock');
+            if(clockElement) clockElement.innerText = timeString;
+        }, 60000);
+
+        // Chart.js
+        const ctx = document.getElementById('departmentChart');
+        if (ctx) {
+            new Chart(ctx.getContext('2d'), {
+                type: 'bar', // You can change this to 'pie' or 'doughnut'
+                data: {
+                    labels: {!! json_encode($deptLabels) !!},
+                    datasets: [{
+                        label: 'Number of Employees',
+                        data: {!! json_encode($deptCounts) !!},
+                        backgroundColor: [
+                            'rgba(18, 52, 86, 0.8)', // Dark Blue
+                            'rgba(13, 110, 253, 0.8)', // Primary Blue
+                            'rgba(25, 135, 84, 0.8)',  // Success Green
+                            'rgba(255, 193, 7, 0.8)',  // Warning Yellow
+                            'rgba(108, 117, 125, 0.8)' // Secondary Gray
+                        ],
+                        borderRadius: 4,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 },
+                            grid: { display: true, drawBorder: false }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+    });
+</script>
+@endpush
 @endsection
