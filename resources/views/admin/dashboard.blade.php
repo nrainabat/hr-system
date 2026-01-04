@@ -8,7 +8,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="card-body py-3">
-                <h2 class="fw-bold" style="color: #123456;">Admin Dashboard</h2>
+                <h2 class="fw-bold" style="color: #123456;">DASHBOARD</h2>
                 <p class="text-muted mb-0">Overview of system statistics and user management.</p>
             </div>
         </div>
