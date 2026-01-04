@@ -137,7 +137,7 @@
                                     <span id="modal-user-department-short" class="fw-bold"></span>
                                 </div>
                                 <div class="col-6">
-                                    <small class="d-block opacity-50 text-uppercase" style="font-size: 0.7rem;">Joined</small>
+                                    <small class="d-block opacity-50 text-uppercase" style="font-size: 0.7rem;">Hired</small>
                                     <span id="modal-user-joined"></span>
                                 </div>
                             </div>

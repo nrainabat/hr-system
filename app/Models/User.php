@@ -27,6 +27,13 @@ class User extends Authenticatable
         'remember_token',
     ];
     
-    // THE FUNCTION "getAuthIdentifierName" HAS BEEN REMOVED.
-    // This allows Laravel to use the numeric 'id' correctly.
+    public function supervisor()
+    {
+        return $this->belongsTo(User::class, 'supervisor_id');
+    }
+
+    public function subordinates()
+    {
+        return $this->hasMany(User::class, 'supervisor_id');
+    }
 }

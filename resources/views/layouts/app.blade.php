@@ -150,7 +150,7 @@
                             {{-- Ensure these route names match exactly what is in web.php --}}
                             <a class="nav-link" href="{{ route('admin.org.departments') }}">Departments</a>
                             <a class="nav-link" href="{{ route('admin.org.jobs') }}">Job Positions</a>
-                            <a class="nav-link" href="{{ route('admin.org.structure') }}">Structure</a>
+                            <a class="nav-link" href="{{ route('admin.org.structAssignment') }}">Structure</a>
                         </nav>
                     </div>
                 @endif

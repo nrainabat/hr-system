@@ -106,17 +106,28 @@ Route::middleware(['auth'])->group(function () {
     // This prefix 'admin.org.' matches the view calls like 'admin.org.departments.store'
     Route::prefix('admin/organization')->name('admin.org.')->group(function() {
         
-        // Departments (Plural)
+        // Departments
         Route::get('/departments', [OrganizationController::class, 'indexDepartments'])->name('departments');
         Route::post('/departments', [OrganizationController::class, 'storeDepartment'])->name('departments.store');
+        Route::get('/departments/{id}/edit', [OrganizationController::class, 'editDepartment'])->name('departments.edit'); // <--- NEW
+        Route::put('/departments/{id}', [OrganizationController::class, 'updateDepartment'])->name('departments.update'); // <--- NEW
         Route::delete('/departments/{id}', [OrganizationController::class, 'destroyDepartment'])->name('departments.delete');
 
-        // Jobs (Plural)
+        // Jobs
         Route::get('/jobs', [OrganizationController::class, 'indexJobs'])->name('jobs');
         Route::post('/jobs', [OrganizationController::class, 'storeJob'])->name('jobs.store');
+        Route::get('/jobs/{id}/edit', [OrganizationController::class, 'editJob'])->name('jobs.edit'); 
+        Route::put('/jobs/{id}', [OrganizationController::class, 'updateJob'])->name('jobs.update'); 
         Route::delete('/jobs/{id}', [OrganizationController::class, 'destroyJob'])->name('jobs.delete');
 
-        // Structure
-        Route::get('/structure', [OrganizationController::class, 'structure'])->name('structure');
+       // 1. Supervisor Assigned View
+        Route::get('/structure/assignments', [OrganizationController::class, 'structAssignment'])->name('structAssignment');
+        
+        // 2. Team Department View
+        Route::get('/structure/teams', [OrganizationController::class, 'structureTeams'])->name('structure.teams');
+
+        // Actions
+        Route::post('/structure/assign', [OrganizationController::class, 'assignSupervisor'])->name('structure.assign');
+        Route::post('/structure/unassign/{id}', [OrganizationController::class, 'unassignSupervisor'])->name('structure.unassign');
     });
 });
