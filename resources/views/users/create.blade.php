@@ -87,7 +87,14 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Position</label>
-                                <input type="text" name="position" class="form-control" value="{{ old('position') }}">
+                                <select name="position" class="form-select">
+                                <option value="" selected disabled>Select Position</option>
+                                @foreach($positions as $job)
+                                    <option value="{{ $job->title }}" {{ old('position') == $job->title ? 'selected' : '' }}>
+                                        {{ $job->title }}
+                                    </option>
+                                @endforeach
+                                </select>
                             </div>
                         </div>
 

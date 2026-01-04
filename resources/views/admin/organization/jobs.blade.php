@@ -15,7 +15,7 @@
                     <form action="{{ route('admin.org.jobs.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label class="form-label">Position Nam</label>
+                            <label class="form-label">Position Name</label>
                             <input type="text" name="title" class="form-control" placeholder="e.g. Software Engineer" required>
                         </div>
                         <button type="submit" class="btn text-white w-100" style="background-color: #123456;">

@@ -37,6 +37,13 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/admin/users/store', [UserController::class, 'store'])
         ->name('admin.users.store');
+
+    // Admin Edit & Update User Details
+    Route::get('/admin/users/{id}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/admin/users/{id}', [UserController::class, 'update'])->name('admin.users.update');
+
+    // === NEW: Route for Password Reset Modal ===
+    Route::put('/admin/users/{id}/password', [UserController::class, 'updatePassword'])->name('admin.users.password');
 });
 
 use App\Http\Controllers\ProfileController;
