@@ -52,6 +52,16 @@
                                 <input type="password" name="password" class="form-control" required>
                             </div>
 
+                            {{-- NEW: About & Address --}}
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">About User (Bio)</label>
+                                <textarea name="about" class="form-control" rows="2">{{ old('about') }}</textarea>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">Residential Address</label>
+                                <textarea name="address" class="form-control" rows="2">{{ old('address') }}</textarea>
+                            </div>
+
                             <hr class="my-4">
 
                             {{-- Role & Dept --}}
@@ -79,17 +89,6 @@
                                 <label class="form-label fw-semibold">Position</label>
                                 <input type="text" name="position" class="form-control" value="{{ old('position') }}">
                             </div>
-
-                            {{-- NEW: About & Address --}}
-                            <div class="col-md-12">
-                                <label class="form-label fw-semibold">About User (Bio)</label>
-                                <textarea name="about" class="form-control" rows="2">{{ old('about') }}</textarea>
-                            </div>
-                            <div class="col-md-12">
-                                <label class="form-label fw-semibold">Residential Address</label>
-                                <textarea name="address" class="form-control" rows="2">{{ old('address') }}</textarea>
-                            </div>
-
                         </div>
 
                         <div class="d-flex justify-content-end mt-4 gap-2">

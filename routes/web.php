@@ -75,7 +75,6 @@ Route::middleware(['auth'])->group(function () {
 
 // INTERN DOCUMENT UPLOAD ROUTE
 use App\Http\Controllers\internDocumentController;
-use App\Http\Controllers\EmployeeDirectoryController; 
 Route::middleware(['auth'])->group(function () {
     // 1. Show the list (History)
     Route::get('/intern/documents', [InternDocumentController::class, 'index'])->name('intern.documents.index');
@@ -87,7 +86,30 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/supervisor/documents', [InternDocumentController::class, 'supervisorIndex'])->name('supervisor.documents.index');
     Route::get('/supervisor/documents/{id}/review', [InternDocumentController::class, 'edit'])->name('supervisor.documents.review');
     Route::put('/supervisor/documents/{id}', [InternDocumentController::class, 'update'])->name('supervisor.documents.update');
+});
 
+//ADMIN VIEW
+use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\EmployeeDirectoryController; 
+Route::middleware(['auth'])->group(function () {
     Route::get('/directory', [EmployeeDirectoryController::class, 'index'])->name('admin.directory');
     Route::get('/directory/{id}/details', [App\Http\Controllers\EmployeeDirectoryController::class, 'show'])->name('directory.show');
+
+    // === ORGANIZATION ROUTES (ADMIN) ===
+    // This prefix 'admin.org.' matches the view calls like 'admin.org.departments.store'
+    Route::prefix('admin/organization')->name('admin.org.')->group(function() {
+        
+        // Departments (Plural)
+        Route::get('/departments', [OrganizationController::class, 'indexDepartments'])->name('departments');
+        Route::post('/departments', [OrganizationController::class, 'storeDepartment'])->name('departments.store');
+        Route::delete('/departments/{id}', [OrganizationController::class, 'destroyDepartment'])->name('departments.delete');
+
+        // Jobs (Plural)
+        Route::get('/jobs', [OrganizationController::class, 'indexJobs'])->name('jobs');
+        Route::post('/jobs', [OrganizationController::class, 'storeJob'])->name('jobs.store');
+        Route::delete('/jobs/{id}', [OrganizationController::class, 'destroyJob'])->name('jobs.delete');
+
+        // Structure
+        Route::get('/structure', [OrganizationController::class, 'structure'])->name('structure');
+    });
 });

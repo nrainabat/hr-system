@@ -140,6 +140,19 @@
                             <a class="nav-link" href="{{ route('admin.directory') }}">Employee Directory</a>
                         </nav>
                     </div>
+
+                    <a class="nav-link" data-bs-toggle="collapse" href="#orgMenu" role="button" aria-expanded="false">
+                        <span><i class="bi bi-building me-2"></i> Organization</span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                    <div class="collapse sub-menu" id="orgMenu">
+                        <nav class="nav flex-column">
+                            {{-- Ensure these route names match exactly what is in web.php --}}
+                            <a class="nav-link" href="{{ route('admin.org.departments') }}">Departments</a>
+                            <a class="nav-link" href="{{ route('admin.org.jobs') }}">Job Positions</a>
+                            <a class="nav-link" href="{{ route('admin.org.structure') }}">Structure</a>
+                        </nav>
+                    </div>
                 @endif
 
 
