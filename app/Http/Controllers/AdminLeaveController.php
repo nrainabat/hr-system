@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\LeaveApplication;
+use App\Models\LeaveCount;
 use App\Models\LeaveType;
 use App\Models\User;
 
@@ -47,29 +48,57 @@ class AdminLeaveController extends Controller
         return back()->with('success', 'Leave request ' . $request->status . '.');
     }
 
-    // === 3. CALENDAR VIEW ===
-    public function calendar()
+    public function indexBalances()
     {
-        return view('admin.leave.calendar');
+        $users = User::whereIn('role', ['employee', 'supervisor', 'intern'])->orderBy('name')->get();
+        $leaveTypes = LeaveType::all();
+
+        // Fetch balances with user details
+        $balances = LeaveCount::with('user')->orderBy('user_id')->get();
+
+        // Calculate Used & Remaining dynamically
+        foreach ($balances as $balance) {
+            // Get approved leaves for this user & type in the current year
+            $approvedLeaves = LeaveApplication::where('user_id', $balance->user_id)
+                ->where('leave_type', $balance->leave_type)
+                ->where('status', 'approved')
+                ->whereYear('start_date', $balance->year)
+                ->get();
+
+            $daysUsed = 0;
+            foreach ($approvedLeaves as $leave) {
+                $start = Carbon::parse($leave->start_date);
+                $end = Carbon::parse($leave->end_date);
+                $daysUsed += $start->diffInDays($end) + 1;
+            }
+
+            // Attach temporary data to the object for the view
+            $balance->days_used = $daysUsed;
+            $balance->remaining = $balance->balance - $daysUsed;
+        }
+
+        return view('admin.leave.counts', compact('users', 'leaveTypes', 'balances'));
     }
 
-    // API Endpoint for Calendar Events
-    public function getCalendarEvents()
+    public function storeBalance(Request $request)
     {
-        $leaves = LeaveApplication::with('user')
-                    ->where('status', 'approved') // Only show approved leaves
-                    ->get();
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'leave_type' => 'required|string',
+            'balance' => 'required|integer|min:0',
+        ]);
 
-        $events = $leaves->map(function ($leave) {
-            return [
-                'title' => $leave->user->name . ' (' . $leave->leave_type . ')',
-                'start' => $leave->start_date,
-                'end'   => date('Y-m-d', strtotime($leave->end_date . ' +1 day')), // FullCalendar needs +1 day for inclusive end
-                'color' => '#123456', // Custom color
-                'allDay' => true,
-            ];
-        });
+        LeaveCount::updateOrCreate(
+            [
+                'user_id' => $request->user_id,
+                'leave_type' => $request->leave_type,
+                'year' => date('Y')
+            ],
+            [
+                'balance' => $request->balance // This acts as the "Total Allocated"
+            ]
+        );
 
-        return response()->json($events);
+        return back()->with('success', 'Leave entitlement updated successfully!');
     }
 }

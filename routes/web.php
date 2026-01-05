@@ -146,7 +146,7 @@ Route::middleware(['auth'])->prefix('admin/leave')->name('admin.leave.')->group(
     Route::get('/requests', [AdminLeaveController::class, 'indexRequests'])->name('requests');
     Route::put('/requests/{id}', [AdminLeaveController::class, 'updateStatus'])->name('status');
 
-    // 3. Calendar
-    Route::get('/calendar', [AdminLeaveController::class, 'calendar'])->name('calendar');
-    Route::get('/calendar/events', [AdminLeaveController::class, 'getCalendarEvents'])->name('calendar.events');
+    // 3. Leave Balances
+    Route::get('/balances', [AdminLeaveController::class, 'indexBalances'])->name('balances');
+    Route::post('/balances', [AdminLeaveController::class, 'storeBalance'])->name('balances.store');
 });

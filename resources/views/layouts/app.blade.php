@@ -161,7 +161,7 @@
                     <div class="collapse sub-menu" id="adminLeaveMenu">
                         <nav class="nav flex-column">
                             <a class="nav-link" href="{{ route('admin.leave.requests') }}">Pending Requests</a>
-                            <a class="nav-link" href="{{ route('admin.leave.calendar') }}">Leave Calendar</a>
+                            <a class="nav-link" href="{{ route('admin.leave.balances') }}">Leave Count</a>
                             <a class="nav-link" href="{{ route('admin.leave.types') }}">Manage Types</a>
                         </nav>
                     </div>
@@ -178,7 +178,7 @@
 
                     {{-- Leave Collapsible --}}
                     <a class="nav-link" data-bs-toggle="collapse" href="#leaveMenu" role="button" aria-expanded="false">
-                        <span><i class="bi bi-briefcase me-2"></i> Leave Management</span>
+                        <span><i class="bi bi-briefcase me-2"></i> Leave</span>
                         <i class="bi bi-chevron-right"></i>
                     </a>
                     <div class="collapse sub-menu" id="leaveMenu">
