@@ -9,6 +9,7 @@ use App\Models\Attendance;
 use App\Models\LeaveApplication;
 use App\Models\User; 
 use App\Models\InternDocument;
+use App\Models\Announcement;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -26,13 +27,23 @@ class DashboardController extends Controller
 
         // 2. Attendance Counters (Today)
         $today = Carbon::today();
-        $presentCount = Attendance::whereDate('date', $today)->whereNotNull('clock_in')->count();
+        
+        // Count 'Present' (Includes normal Present + Overtime)
+        $presentCount = Attendance::whereDate('date', $today)
+                            ->whereIn('status', ['Present', 'Overtime'])
+                            ->count();
+        
+        // Count 'Late' (Includes Late + Half Day/Incomplete)
         $lateCount = Attendance::whereDate('date', $today)
-                        ->whereNotNull('clock_in')
-                        ->whereTime('clock_in', '>', '09:00:00')
+                        ->whereIn('status', ['Late', 'Half Day'])
                         ->count();
-        $absentCount = $totalUsers - $presentCount;
-        $attendancePercentage = $totalUsers > 0 ? round(($presentCount / $totalUsers) * 100) : 0;
+        
+        // Count 'Absent' (Total Users - Records Found)
+        // Note: This logic assumes if there is no record, they are absent.
+        $totalRecordsToday = Attendance::whereDate('date', $today)->count();
+        $absentCount = $totalUsers - $totalRecordsToday;
+
+        $attendancePercentage = $totalUsers > 0 ? round(($totalRecordsToday / $totalUsers) * 100) : 0;
 
         // 3. Department Data (For Chart)
         $departmentData = User::select('department', DB::raw('count(*) as total'))
@@ -78,7 +89,6 @@ class DashboardController extends Controller
         return $this->getDashboardData('employee.dashboard', true, false);
     }
 
-    // SHARED HELPER FUNCTION
     private function getDashboardData($viewName, $isIntern = false, $isSupervisor = false)
     {
         $user = Auth::user();
@@ -91,6 +101,8 @@ class DashboardController extends Controller
         $approvedCount = LeaveApplication::where('user_id', $userId)->where('status', 'approved')->count();
         $rejectedCount = LeaveApplication::where('user_id', $userId)->where('status', 'rejected')->count();
         $cancelledCount = LeaveApplication::where('user_id', $userId)->where('status', 'cancelled')->count();
+        
+        $announcements = Announcement::latest()->take(3)->get();
 
         // 2. Role Specific Data
         $recentLeaves = [];
@@ -101,26 +113,53 @@ class DashboardController extends Controller
         $myInternsCount = 0;
         $pendingReviewCount = 0;
         $signedCount = 0;
+        
+        // Chart Data Variables
+        $teamPresent = 0;
+        $teamLate = 0;
+        $teamAbsent = 0;
+        $totalTeam = 0;
 
         if ($isIntern) {
             $recentDocuments = InternDocument::where('user_id', $userId)->latest()->take(5)->get();
         } 
         elseif ($isSupervisor) {
-            // A. Fetch Pending Documents (All or Department specific)
+            // A. Fetch Pending Documents
             $pendingInternDocuments = InternDocument::with('user')
                                         ->where('status', 'pending')
                                         ->orderBy('created_at', 'desc')
                                         ->get();
 
-            // B. Possibility 1: Count Interns in the same Department
-            $myInternsCount = User::where('role', 'intern')
-                                ->where('department', $user->department)
-                                ->count();
+            // B. Identify "My Team" (Interns & Employees in same Department)
+            // You can also use 'supervisor_id' if you have set that up relationally.
+            $myTeam = User::where('department', $user->department)
+                          ->where('id', '!=', $user->id) // Exclude self
+                          ->whereIn('role', ['employee', 'intern'])
+                          ->get();
 
-            // C. Possibility 2: Count Pending Reviews
+            $myInternsCount = $myTeam->where('role', 'intern')->count();
+            $totalTeam = $myTeam->count();
+
+            // C. Calculate Team Attendance for Chart
+            // Get IDs of team members
+            $teamIds = $myTeam->pluck('id');
+            
+            // Fetch today's attendance for these users
+            $teamAttendance = Attendance::whereIn('user_id', $teamIds)
+                                        ->where('date', $today)
+                                        ->get();
+
+            $teamPresent = $teamAttendance->where('status', 'Present')->count();
+            // Group 'Late' and 'Half Day' as Late for the chart, or separate them
+            $teamLate = $teamAttendance->whereIn('status', ['Late', 'Half Day'])->count();
+            
+            // Absent = Total Team - (Present + Late)
+            // Note: This assumes anyone without a record is Absent
+            $recordedCount = $teamPresent + $teamLate; 
+            $teamAbsent = $totalTeam - $recordedCount;
+
+            // D. Other Supervisor Counts
             $pendingReviewCount = InternDocument::where('status', 'pending')->count();
-
-            // D. Possibility 3: Count Signed Documents (Productivity)
             $signedCount = InternDocument::where('status', 'signed')->count();
         } 
         else {
@@ -136,10 +175,16 @@ class DashboardController extends Controller
             'recentLeaves',
             'recentDocuments',
             'pendingInternDocuments',
-            // Pass Supervisor Stats
+            'announcements',
+            // Supervisor Stats
             'myInternsCount',
             'pendingReviewCount',
-            'signedCount'
+            'signedCount',
+            // Chart Data
+            'teamPresent',
+            'teamLate',
+            'teamAbsent',
+            'totalTeam'
         ));
     }
 }

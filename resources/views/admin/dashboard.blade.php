@@ -14,7 +14,7 @@
         </div>
     </div>
 
-    {{-- 2. Organization Overview (Minimalist & Formal) --}}
+    {{-- 2. Organization Overview --}}
     <h5 class="fw-bold mb-3 ps-1" style="color: #123456;">Organization Overview</h5>
     <div class="row g-3 mb-4">
         {{-- Total Users --}}
@@ -186,24 +186,27 @@
             </div>
         </div>
 
-        {{-- RIGHT: Quick Actions --}}
+        {{-- RIGHT: Quick Actions (UPDATED) --}}
         <div class="col-lg-4 mb-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-white py-3 border-bottom">
                     <h5 class="fw-bold mb-0 text-dark">Quick Actions</h5>
                 </div>
                 <div class="card-body p-4 d-flex flex-column gap-3">
+                    {{-- 1. Register User --}}
                     <a href="{{ route('admin.users.create') }}" class="btn btn-dark w-100 py-3 d-flex align-items-center justify-content-center shadow-sm">
                         <i class="bi bi-person-plus-fill me-2 fs-5"></i> Register New User
                     </a>
                     
-                    <button class="btn btn-outline-secondary w-100 py-3 d-flex align-items-center justify-content-center">
+                    {{-- 2. Manage Employees (Links to Directory) --}}
+                    <a href="{{ route('admin.directory') }}" class="btn btn-outline-secondary w-100 py-3 d-flex align-items-center justify-content-center">
                         <i class="bi bi-people-fill me-2 fs-5"></i> Manage Employees
-                    </button>
+                    </a>
 
-                    <button class="btn btn-outline-secondary w-100 py-3 d-flex align-items-center justify-content-center">
+                    {{-- 3. View Reports (Links to Attendance Log) --}}
+                    <a href="{{ route('admin.attendance') }}" class="btn btn-outline-secondary w-100 py-3 d-flex align-items-center justify-content-center">
                         <i class="bi bi-file-earmark-bar-graph me-2 fs-5"></i> View Reports
-                    </button>
+                    </a>
                     
                     <div class="mt-auto text-center pt-3">
                         <small class="text-muted">System Version 1.0.0</small>
@@ -230,11 +233,10 @@
 </div>
 
 @push('scripts')
-{{-- Chart Script --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Live Clock (Optional)
+        // Live Clock
         setInterval(() => {
             const now = new Date();
             const timeString = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
@@ -246,19 +248,13 @@
         const ctx = document.getElementById('departmentChart');
         if (ctx) {
             new Chart(ctx.getContext('2d'), {
-                type: 'bar', // You can change this to 'pie' or 'doughnut'
+                type: 'bar',
                 data: {
                     labels: {!! json_encode($deptLabels) !!},
                     datasets: [{
                         label: 'Number of Employees',
                         data: {!! json_encode($deptCounts) !!},
-                        backgroundColor: [
-                            'rgba(18, 52, 86, 0.8)', // Dark Blue
-                            'rgba(13, 110, 253, 0.8)', // Primary Blue
-                            'rgba(25, 135, 84, 0.8)',  // Success Green
-                            'rgba(255, 193, 7, 0.8)',  // Warning Yellow
-                            'rgba(108, 117, 125, 0.8)' // Secondary Gray
-                        ],
+                        backgroundColor: ['#123456', '#0d6efd', '#198754', '#ffc107', '#6c757d'],
                         borderRadius: 4,
                         borderWidth: 0
                     }]
@@ -267,18 +263,10 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { stepSize: 1 },
-                            grid: { display: true, drawBorder: false }
-                        },
-                        x: {
-                            grid: { display: false }
-                        }
+                        y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { display: true } },
+                        x: { grid: { display: false } }
                     },
-                    plugins: {
-                        legend: { display: false }
-                    }
+                    plugins: { legend: { display: false } }
                 }
             });
         }

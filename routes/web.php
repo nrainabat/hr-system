@@ -154,3 +154,13 @@ Route::middleware(['auth'])->prefix('admin/leave')->name('admin.leave.')->group(
     Route::get('/balances', [AdminLeaveController::class, 'indexBalances'])->name('balances');
     Route::post('/balances', [AdminLeaveController::class, 'storeBalance'])->name('balances.store');
 });
+
+use App\Http\Controllers\AnnouncementController;
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function() {
+    // ... existing routes ...
+
+    // Announcements
+    Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+    Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.delete');
+});

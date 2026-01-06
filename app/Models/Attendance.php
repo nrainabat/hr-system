@@ -18,6 +18,7 @@ class Attendance extends Model
         'clock_in',
         'clock_out',
         'status',
+        'overtime_hours',
     ];
 
     // 2. THIS IS THE MISSING PART causing the error

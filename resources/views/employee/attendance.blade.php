@@ -9,7 +9,7 @@
             <h2 class="fw-bold text-dark">My Attendance History</h2>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/employee/dashboard" class="text-decoration-none" style="color: #873260;">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="/employee/dashboard" class="text-decoration-none" style="color: #123456;">Dashboard</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Attendance</li>
                 </ol>
             </nav>
