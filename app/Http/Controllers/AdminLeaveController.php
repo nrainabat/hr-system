@@ -4,13 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\LeaveApplication;
-use App\Models\LeaveCount;
 use App\Models\LeaveType;
+use App\Models\LeaveBalance;
+use App\Models\LeaveCount;
 use App\Models\User;
+use Carbon\Carbon; 
 
 class AdminLeaveController extends Controller
 {
-    // === 1. MANAGE LEAVE TYPES ===
+
+    // 1. MANAGE LEAVE TYPES
     public function indexTypes()
     {
         $types = LeaveType::all();
@@ -19,7 +22,7 @@ class AdminLeaveController extends Controller
 
     public function storeType(Request $request)
     {
-        $request->validate(['name' => 'required|unique:leave_types,name', 'days_allowed' => 'required|integer']);
+        $request->validate(['name' => 'required|unique:leave_types,name']);
         LeaveType::create($request->all());
         return back()->with('success', 'Leave Type added successfully.');
     }
@@ -30,11 +33,15 @@ class AdminLeaveController extends Controller
         return back()->with('success', 'Leave Type removed.');
     }
 
-    // === 2. MANAGE LEAVE REQUESTS ===
+    // 2. MANAGE LEAVE REQUESTS
     public function indexRequests()
     {
-        // Fetch pending requests with user details
-        $requests = LeaveApplication::with('user')->where('status', 'pending')->latest()->get();
+        // Fetch ALL requests, sorted by 'Pending' first, then by date (newest first)
+        $requests = LeaveApplication::with('user')
+                    ->orderByRaw("CASE WHEN status = 'pending' THEN 1 ELSE 2 END")
+                    ->latest()
+                    ->get();
+
         return view('admin.leave.requests', compact('requests'));
     }
 
@@ -48,6 +55,7 @@ class AdminLeaveController extends Controller
         return back()->with('success', 'Leave request ' . $request->status . '.');
     }
 
+    // 3. MANAGE LEAVE BALANCES 
     public function indexBalances()
     {
         $users = User::whereIn('role', ['employee', 'supervisor', 'intern'])->orderBy('name')->get();
@@ -95,10 +103,11 @@ class AdminLeaveController extends Controller
                 'year' => date('Y')
             ],
             [
-                'balance' => $request->balance // This acts as the "Total Allocated"
+                'balance' => $request->balance
             ]
         );
 
         return back()->with('success', 'Leave entitlement updated successfully!');
     }
+
 }

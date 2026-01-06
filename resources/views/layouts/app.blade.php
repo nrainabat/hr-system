@@ -165,6 +165,11 @@
                             <a class="nav-link" href="{{ route('admin.leave.types') }}">Manage Types</a>
                         </nav>
                     </div>
+
+                    {{-- In the Admin Links Section --}}
+                    <a class="nav-link" href="{{ route('admin.attendance') }}">
+                        <span><i class="bi bi-clock me-2"></i> Attendance Log</span>
+                    </a>
                 @endif
 
 

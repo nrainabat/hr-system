@@ -16,34 +16,47 @@ class ProfileController extends Controller
     }
 
     public function update(Request $request)
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    $request->validate([
-        'name'          => 'required|string|max:255',
-        'username'      => 'required|string|max:255|unique:users,username,' . $user->id,
-        'email'         => 'required|email|max:255|unique:users,email,' . $user->id,
-        'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        'phone_number'  => 'nullable|string|max:20',
-        'gender'        => 'nullable|in:Male,Female',
-        'about'         => 'nullable|string|max:500',
-        'address'       => 'nullable|string|max:500', // <--- Validation
-    ]);
+        $request->validate([
+            'name'          => 'required|string|max:255',
+            'username'      => 'required|string|max:255|unique:users,username,' . $user->id,
+            'email'         => 'required|email|max:255|unique:users,email,' . $user->id,
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validation is there
+            'phone_number'  => 'nullable|string|max:20',
+            'gender'        => 'nullable|in:Male,Female',
+            'about'         => 'nullable|string|max:500',
+            'address'       => 'nullable|string|max:500',
+        ]);
 
-    // ... (image handling)
+        // === ADD THIS BLOCK ===
+        if ($request->hasFile('profile_image')) {
+            // 1. Delete old image if it exists (optional but recommended)
+            if ($user->profile_image) {
+                Storage::disk('public')->delete($user->profile_image);
+            }
 
-    $user->name = $request->name;
-    $user->username = $request->username;
-    $user->email = $request->email;
-    $user->phone_number = $request->phone_number;
-    $user->gender = $request->gender;
-    $user->about = $request->about;
-    $user->address = $request->address; // <--- Update
+            // 2. Store the new image in 'storage/app/public/profile_images'
+            $path = $request->file('profile_image')->store('profile_images', 'public');
 
-    $user->save();
+            // 3. Save the path to the user object
+            $user->profile_image = $path;
+        }
+        // ======================
 
-    return redirect()->route('profile.show')->with('success', 'Profile updated successfully!');
-}
+        $user->name = $request->name;
+        $user->username = $request->username;
+        $user->email = $request->email;
+        $user->phone_number = $request->phone_number;
+        $user->gender = $request->gender;
+        $user->about = $request->about;
+        $user->address = $request->address;
+
+        $user->save();
+
+        return redirect()->route('profile.show')->with('success', 'Profile updated successfully!');
+    }
 
     public function updatePassword(Request $request)
     {

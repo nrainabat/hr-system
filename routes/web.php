@@ -78,6 +78,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clockIn');
     Route::post('/attendance/clock-out', [AttendanceController::class, 'clockOut'])->name('attendance.clockOut');
     Route::get('/employee/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+
+    // Admin Attendance Tracking
+    Route::get('/admin/attendance', [AttendanceController::class, 'adminIndex'])
+        ->name('admin.attendance');
 });
 
 // INTERN DOCUMENT UPLOAD ROUTE

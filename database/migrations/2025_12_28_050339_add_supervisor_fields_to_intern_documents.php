@@ -6,29 +6,29 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::table('intern_documents', function (Blueprint $table) {
-            // Check if column exists before adding to prevent errors if re-running
-            if (!Schema::hasColumn('intern_documents', 'signed_file_path')) {
-                $table->string('signed_file_path')->nullable()->after('file_path');
-            }
-            if (!Schema::hasColumn('intern_documents', 'supervisor_comment')) {
-                $table->text('supervisor_comment')->nullable()->after('description');
-            }
-        });
+        // Check if table exists to prevent "Table already exists" error
+        if (!Schema::hasTable('intern_documents')) {
+            Schema::create('intern_documents', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('user_id')->constrained()->onDelete('cascade');
+                $table->string('filename');
+                $table->string('file_path');
+                $table->string('description')->nullable();
+                $table->enum('status', ['pending', 'signed', 'rejected'])->default('pending');
+                
+                // Add the supervisor fields directly here
+                $table->string('signed_file_path')->nullable();
+                $table->text('supervisor_comment')->nullable();
+
+                $table->timestamps();
+            });
+        }
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::table('intern_documents', function (Blueprint $table) {
-            $table->dropColumn(['signed_file_path', 'supervisor_comment']);
-        });
+        Schema::dropIfExists('intern_documents');
     }
 };

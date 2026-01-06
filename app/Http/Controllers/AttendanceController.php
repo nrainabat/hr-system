@@ -60,7 +60,7 @@ class AttendanceController extends Controller
         return redirect()->back()->with('error', 'You are not clocked in!');
     }
     
-    // VIEW HISTORY
+    // EMPLOYEE HISTORY
     public function index()
     {
         $attendanceHistory = Attendance::where('user_id', Auth::id())
@@ -69,5 +69,17 @@ class AttendanceController extends Controller
                                 ->get();
         
         return view('employee.attendance', compact('attendanceHistory'));
+    }
+
+    // ADMIN VIEW ALL ATTENDANCE
+    public function adminIndex()
+    {
+        // Fetch all records with User details
+        $attendanceRecords = Attendance::with('user')
+                                ->orderBy('date', 'desc')
+                                ->orderBy('clock_in', 'desc')
+                                ->get();
+
+        return view('admin.attendance', compact('attendanceRecords'));
     }
 }

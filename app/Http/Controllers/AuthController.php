@@ -9,7 +9,7 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
-        return view('home');
+        return view('home'); // Ensure this points to your actual login view file
     }
 
     public function login(Request $request)
@@ -27,12 +27,10 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             // Redirect based on role
-            return match (Auth::user()->role) 
-            {
-                'admin'      => redirect('/admin/dashboard'),
-                'supervisor' => redirect('/supervisor/dashboard'),
-                'employee', 'intern'  => redirect('/employee/dashboard'),
-                default      => redirect('/'),
+            return match (Auth::user()->role) {
+                'admin' => redirect('/admin/dashboard'),
+                'supervisor', 'employee', 'intern' => redirect('/employee/dashboard'),
+                default => redirect('/'),
             };
         }
 
@@ -44,7 +42,6 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
         return redirect('/');
     }
 }

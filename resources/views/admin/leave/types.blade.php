@@ -16,10 +16,7 @@
                             <label>Type Name</label>
                             <input type="text" name="name" class="form-control" placeholder="e.g. Annual Leave" required>
                         </div>
-                        <div class="mb-3">
-                            <label>Days Allowed</label>
-                            <input type="number" name="days_allowed" class="form-control" value="14" required>
-                        </div>
+                        {{-- Removed Days Allowed Input --}}
                         <button class="btn w-100 text-white" style="background-color: #123456;">Add</button>
                     </form>
                 </div>
@@ -32,14 +29,16 @@
                 <div class="card-header bg-white fw-bold">Current Leave Types</div>
                 <table class="table mb-0">
                     <thead class="table-light">
-                        <tr><th>Name</th><th>Days</th><th>Action</th></tr>
+                        <tr>
+                            <th>Name</th>
+                            <th class="text-end">Action</th>
+                        </tr>
                     </thead>
                     <tbody>
                         @foreach($types as $type)
                         <tr>
                             <td>{{ $type->name }}</td>
-                            <td>{{ $type->days_allowed }}</td>
-                            <td>
+                            <td class="text-end">
                                 <form action="{{ route('admin.leave.types.delete', $type->id) }}" method="POST">
                                     @csrf @method('DELETE')
                                     <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>

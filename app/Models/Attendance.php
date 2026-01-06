@@ -9,7 +9,7 @@ class Attendance extends Model
 {
     use HasFactory;
 
-    // ADD THIS LINE TO FIX THE ERROR
+    // 1. Table Name
     protected $table = 'attendance'; 
 
     protected $fillable = [
@@ -19,4 +19,10 @@ class Attendance extends Model
         'clock_out',
         'status',
     ];
+
+    // 2. THIS IS THE MISSING PART causing the error
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

@@ -5,7 +5,7 @@
 @section('content')
 <div class="container py-4">
     <h4 class="fw-bold mb-3" style="color: #123456;">
-        <i class="bi bi-envelope-exclamation me-2"></i> Pending Leave Requests
+        <i class="bi bi-inbox me-2"></i> All Leave Requests
     </h4>
     
     <div class="card shadow-sm border-0">
@@ -15,6 +15,7 @@
                     <tr>
                         <th class="ps-4">Employee</th>
                         <th>Type</th>
+                        <th>Status</th> {{-- NEW COLUMN --}}
                         <th>Dates</th>
                         <th>Duration</th>
                         <th class="text-end pe-4">Action</th>
@@ -22,7 +23,7 @@
                 </thead>
                 <tbody>
                     @forelse($requests as $leave)
-                    <tr>
+                    <tr class="{{ $leave->status == 'pending' ? 'table-warning' : '' }}" style="{{ $leave->status == 'pending' ? '--bs-table-bg-type: rgba(255, 193, 7, 0.05);' : '' }}">
                         <td class="ps-4 fw-bold">
                             <div class="d-flex align-items-center">
                                 <div class="rounded-circle bg-light d-flex justify-content-center align-items-center me-2" style="width: 35px; height: 35px;">
@@ -35,6 +36,18 @@
                             </div>
                         </td>
                         <td><span class="badge bg-secondary">{{ ucfirst($leave->leave_type) }}</span></td>
+                        
+                        {{-- STATUS BADGE --}}
+                        <td>
+                            @if($leave->status == 'approved')
+                                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Approved</span>
+                            @elseif($leave->status == 'rejected')
+                                <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i> Rejected</span>
+                            @else
+                                <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i> Pending</span>
+                            @endif
+                        </td>
+
                         <td class="small">
                             {{ \Carbon\Carbon::parse($leave->start_date)->format('d M') }} 
                             <i class="bi bi-arrow-right mx-1 text-muted"></i> 
@@ -53,6 +66,7 @@
                                 data-name="{{ $leave->user->name }}"
                                 data-dept="{{ $leave->user->department ?? 'N/A' }}"
                                 data-type="{{ ucfirst($leave->leave_type) }}"
+                                data-status="{{ $leave->status }}" 
                                 data-start="{{ \Carbon\Carbon::parse($leave->start_date)->format('d M Y') }}"
                                 data-end="{{ \Carbon\Carbon::parse($leave->end_date)->format('d M Y') }}"
                                 data-days="{{ \Carbon\Carbon::parse($leave->start_date)->diffInDays(\Carbon\Carbon::parse($leave->end_date)) + 1 }}"
@@ -65,9 +79,9 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">
+                        <td colspan="6" class="text-center py-5 text-muted">
                             <i class="bi bi-check-circle display-4 d-block mb-3 opacity-25 text-success"></i>
-                            No pending leave requests found.
+                            No leave requests found.
                         </td>
                     </tr>
                     @endforelse
@@ -142,7 +156,8 @@
             <div class="modal-footer bg-light d-flex justify-content-between">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 
-                <div class="d-flex gap-2">
+                {{-- Actions Wrapper: Only shows if Pending --}}
+                <div id="modal-actions" class="d-flex gap-2">
                     {{-- Reject Button Form --}}
                     <form id="form-reject" action="" method="POST" onsubmit="return confirm('Are you sure you want to REJECT this request?');">
                         @csrf @method('PUT')
@@ -161,6 +176,11 @@
                         </button>
                     </form>
                 </div>
+                
+                {{-- Status Message (Shows if NOT Pending) --}}
+                <div id="modal-status-msg" class="d-none fw-bold text-muted">
+                    <i class="bi bi-info-circle me-1"></i> Request already processed.
+                </div>
             </div>
         </div>
     </div>
@@ -173,11 +193,12 @@
         
         previewBtns.forEach(btn => {
             btn.addEventListener('click', function() {
-                // 1. Get Data from data attributes
+                // 1. Get Data
                 const id = this.dataset.id;
                 const name = this.dataset.name;
                 const dept = this.dataset.dept;
                 const type = this.dataset.type;
+                const status = this.dataset.status;
                 const start = this.dataset.start;
                 const end = this.dataset.end;
                 const days = this.dataset.days;
@@ -204,11 +225,23 @@
                     attachSection.classList.add('d-none');
                 }
 
-                // 4. Update Form Actions (Approve/Reject)
-                // Base URL for leave status update
-                const baseUrl = "{{ url('admin/leave/requests') }}"; 
-                document.getElementById('form-approve').action = `${baseUrl}/${id}`;
-                document.getElementById('form-reject').action = `${baseUrl}/${id}`;
+                // 4. Handle Buttons (Show only if Pending)
+                const actionsDiv = document.getElementById('modal-actions');
+                const statusMsg = document.getElementById('modal-status-msg');
+
+                if (status === 'pending') {
+                    actionsDiv.classList.remove('d-none');
+                    statusMsg.classList.add('d-none');
+                    
+                    // Update Form Actions
+                    const baseUrl = "{{ url('admin/leave/requests') }}"; 
+                    document.getElementById('form-approve').action = `${baseUrl}/${id}`;
+                    document.getElementById('form-reject').action = `${baseUrl}/${id}`;
+                } else {
+                    actionsDiv.classList.add('d-none');
+                    statusMsg.classList.remove('d-none');
+                    statusMsg.textContent = 'Request is ' + status.charAt(0).toUpperCase() + status.slice(1);
+                }
             });
         });
     });

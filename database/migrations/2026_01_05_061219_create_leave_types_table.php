@@ -10,8 +10,7 @@ return new class extends Migration
     {
         Schema::create('leave_types', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique(); // e.g., 'Annual Leave'
-            $table->integer('days_allowed')->default(14); // e.g., 14 days
+            $table->string('name')->unique();
             $table->timestamps();
         });
     }
