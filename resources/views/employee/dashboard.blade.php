@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid py-2">
-    {{-- 1. Header Section --}}
+    {{-- Header Section --}}
     <div class="row mb-4 align-items-end">
         <div class="col-md-8">
             <h2 class="fw-bold text-dark mb-0">DASHBOARD</h2>
@@ -18,7 +18,6 @@
     </div>
 
     <div class="row g-4">
-        {{-- LEFT COLUMN: Main Operations --}}
         <div class="col-lg-8">
             
             {{-- 1. ATTENDANCE SECTION --}}
@@ -30,7 +29,6 @@
                 </div>
                 <div class="card-body p-4">
                     <div class="row align-items-center">
-                        {{-- Status Indicator --}}
                         <div class="col-md-6 mb-3 mb-md-0 text-center text-md-start border-end-md">
                             <p class="text-uppercase text-muted small fw-bold mb-1">Current Status</p>
                             @if(!$todayAttendance || $todayAttendance->clock_out)
@@ -38,7 +36,6 @@
                             @else
                                 <h4 class="fw-bold text-success mb-0"><i class="bi bi-circle-fill text-success me-2 small"></i>Working Now</h4>
                             @endif
-                            
                             <div class="mt-3">
                                 @if($todayAttendance)
                                     <span class="me-3">
@@ -57,7 +54,6 @@
                             </div>
                         </div>
 
-                        {{-- Action Buttons --}}
                         <div class="col-md-6 text-center">
                             @if(!$todayAttendance || $todayAttendance->clock_out)
                                 <form action="{{ route('attendance.clockIn') }}" method="POST">
@@ -66,7 +62,6 @@
                                         <i class="bi bi-fingerprint me-2"></i> CLOCK IN
                                     </button>
                                 </form>
-                                <small class="text-muted d-block mt-2">Shift starts at 9:00 AM</small>
                             @else
                                 <form action="{{ route('attendance.clockOut') }}" method="POST">
                                     @csrf
@@ -74,7 +69,6 @@
                                         <i class="bi bi-power me-2"></i> CLOCK OUT
                                     </button>
                                 </form>
-                                <small class="text-muted d-block mt-2">Don't forget to clock out!</small>
                             @endif
                         </div>
                     </div>
@@ -118,14 +112,21 @@
                 </div>
             </div>
 
-            {{-- 3. ROLE SPECIFIC CONTENT --}}
-            
-            {{-- === SUPERVISOR SECTION === --}}
+            {{-- 3. SUPERVISOR TASKS (Pending Reviews) --}}
             @if(Auth::user()->role === 'supervisor')
+                
+                {{-- HEADER --}}
+                <div class="mb-3 mt-4">
+                     <h4 class="fw-bold" style="color: #123456;">
+                        <i class="bi bi-shield-lock-fill me-2"></i> Supervisor Management
+                    </h4>
+                </div>
+
+                {{-- Pending Reviews Table --}}
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
                         <h6 class="mb-0 fw-bold" style="color: #123456;">
-                            <i class="bi bi-kanban me-2"></i> SUPERVISOR TASKS
+                            <i class="bi bi-kanban me-2"></i> PENDING REVIEWS
                         </h6>
                         <span class="badge bg-warning text-dark">{{ $pendingReviewCount ?? 0 }} Pending</span>
                     </div>
@@ -145,7 +146,7 @@
                                         <tr>
                                             <td class="ps-4 fw-bold">{{ $doc->user->name }}</td>
                                             <td>{{ $doc->filename }}</td>
-                                            <td class="text-muted small">{{ $doc->created_at->format('d M Y') }}</td>
+                                            <td class="text-muted small">{{ $doc->created_at->format('d M') }}</td>
                                             <td class="text-end pe-4">
                                                 <a href="{{ route('supervisor.documents.review', $doc->id) }}" class="btn btn-sm btn-primary px-3">Review</a>
                                             </td>
@@ -168,7 +169,7 @@
                 </div>
             @endif
 
-            {{-- === INTERN SECTION === --}}
+            {{-- 4. INTERN RECENT UPLOADS --}}
             @if(Auth::user()->role === 'intern')
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-white py-3 border-bottom">
@@ -200,9 +201,7 @@
                                             </td>
                                             <td class="text-end pe-4">
                                                 @if($doc->status == 'signed' && $doc->signed_file_path)
-                                                    <a href="{{ asset('storage/' . $doc->signed_file_path) }}" class="btn btn-sm btn-outline-success" download>
-                                                        <i class="bi bi-download me-1"></i> Download
-                                                    </a>
+                                                    <a href="{{ asset('storage/' . $doc->signed_file_path) }}" class="btn btn-sm btn-outline-success" download><i class="bi bi-download"></i></a>
                                                 @elseif($doc->supervisor_comment)
                                                     <span class="text-muted small" title="{{ $doc->supervisor_comment }}"><i class="bi bi-chat-left-text"></i> Note</span>
                                                 @else
@@ -211,9 +210,7 @@
                                             </td>
                                         </tr>
                                     @empty
-                                        <tr>
-                                            <td colspan="4" class="text-center py-4 text-muted">No documents uploaded yet.</td>
-                                        </tr>
+                                        <tr><td colspan="4" class="text-center py-4 text-muted">No documents uploaded yet.</td></tr>
                                     @endforelse
                                 </tbody>
                             </table>
@@ -222,38 +219,44 @@
                 </div>
             @endif
 
-            {{-- 4. ANNOUNCEMENTS --}}
+            {{-- 5. ANNOUNCEMENTS --}}
             <div class="card border-0 shadow-sm bg-light mb-4">
                 <div class="card-body">
                     <h6 class="fw-bold mb-3" style="color: #123456;">
                         <i class="bi bi-megaphone-fill text-warning me-2"></i> ANNOUNCEMENTS
                     </h6>
-                    <div class="d-flex align-items-start bg-white p-3 rounded border">
-                        <div class="me-3">
-                            <span class="badge bg-primary">NEW</span>
+                    @forelse($announcements ?? [] as $ann)
+                        <div class="d-flex align-items-start bg-white p-3 rounded border mb-2">
+                            <div class="me-3">
+                                <span class="badge bg-primary">NEW</span>
+                            </div>
+                            <div>
+                                <h6 class="text-dark fw-bold mb-1">{{ $ann->title }}</h6>
+                                <p class="text-muted small mb-1">{{ $ann->content }}</p>
+                                <small class="text-secondary" style="font-size: 0.7rem;">
+                                    Posted {{ $ann->created_at->diffForHumans() }}
+                                </small>
+                            </div>
                         </div>
-                        <div>
-                            <small class="text-dark fw-bold d-block">System Update 1.0</small>
-                            <small class="text-muted">The HR system has been updated. Please report any issues to IT support.</small>
+                    @empty
+                        <div class="d-flex align-items-center text-muted">
+                            <i class="bi bi-info-circle me-2"></i> No announcements at this time.
                         </div>
-                    </div>
+                    @endforelse
                 </div>
             </div>
 
         </div>
 
-        {{-- RIGHT COLUMN: Profile & Actions --}}
         <div class="col-lg-4">
             
-            {{-- 1. PROFILE SUMMARY CARD (UPDATED WITH IMAGE) --}}
+            {{-- 1. PROFILE SUMMARY CARD --}}
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4 text-center">
                     <div class="mb-3">
                         @if(Auth::user()->profile_image)
                             <img src="{{ asset('storage/' . Auth::user()->profile_image) }}" 
-                                 alt="Profile" 
-                                 class="rounded-circle border" 
-                                 style="width: 100px; height: 100px; object-fit: cover;">
+                                 alt="Profile" class="rounded-circle border" style="width: 100px; height: 100px; object-fit: cover;">
                         @else
                             <div class="rounded-circle bg-light d-flex justify-content-center align-items-center mx-auto border" style="width: 100px; height: 100px;">
                                 <span class="fs-1 text-secondary fw-bold">{{ substr(Auth::user()->name, 0, 1) }}</span>
@@ -262,12 +265,10 @@
                     </div>
                     <h5 class="fw-bold mb-1">{{ Auth::user()->name }}</h5>
                     <p class="text-muted mb-3 small">{{ Auth::user()->email }}</p>
-                    
                     <div class="d-flex justify-content-center gap-2 mb-3">
                         <span class="badge bg-light text-dark border">{{ Auth::user()->department ?? 'No Dept' }}</span>
                         <span class="badge bg-light text-dark border">{{ Auth::user()->position ?? 'No Position' }}</span>
                     </div>
-
                     <a href="{{ route('profile.show') }}" class="btn btn-outline-secondary btn-sm w-100">View Full Profile</a>
                 </div>
             </div>
@@ -316,7 +317,120 @@
                 </div>
             </div>
 
+            {{-- 3. SUPERVISOR WIDGETS --}}
+            @if(Auth::user()->role === 'supervisor')
+                
+                {{-- A. TOTAL EMPLOYEES CARD (With Modal Trigger) --}}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body text-center p-4">
+                        <h6 class="fw-bold text-muted text-uppercase small mb-3">Total Assigned Employees</h6>
+                        <h1 class="display-4 fw-bold mb-3 text-dark">{{ $totalTeam ?? 0 }}</h1>
+                        <button type="button" class="btn btn-outline-dark btn-sm w-100" data-bs-toggle="modal" data-bs-target="#teamListModal">
+                            <i class="bi bi-list-ul me-2"></i> View Details
+                        </button>
+                    </div>
+                </div>
+
+                {{-- B. ATTENDANCE CHART CARD --}}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h6 class="mb-0 fw-bold" style="color: #123456;">ATTENDANCE OVERVIEW</h6>
+                    </div>
+                    <div class="card-body pt-4">
+                        <div style="height: 180px; position: relative;" class="mb-3">
+                            <canvas id="supervisorTeamChart"></canvas>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-2">
+                            <div class="text-center w-100 border-end">
+                                <h5 class="fw-bold text-success mb-0">{{ $teamPresent ?? 0 }}</h5>
+                                <small class="text-muted" style="font-size: 0.65rem;">PRESENT</small>
+                            </div>
+                            <div class="text-center w-100 border-end">
+                                <h5 class="fw-bold text-warning mb-0">{{ $teamLate ?? 0 }}</h5>
+                                <small class="text-muted" style="font-size: 0.65rem;">LATE</small>
+                            </div>
+                            <div class="text-center w-100">
+                                <h5 class="fw-bold text-danger mb-0">{{ $teamAbsent ?? 0 }}</h5>
+                                <small class="text-muted" style="font-size: 0.65rem;">ABSENT</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            @endif
+
         </div>
     </div>
 </div>
+
+@if(Auth::user()->role === 'supervisor')
+<div class="modal fade" id="teamListModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-white border-bottom">
+                <h5 class="modal-title fw-bold" style="color: #123456;"><i class="bi bi-people-fill me-2"></i> My Team Members</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="list-group list-group-flush">
+                    @forelse($myTeam ?? [] as $member)
+                        <div class="list-group-item p-3 d-flex align-items-center">
+                            <div class="rounded-circle bg-light d-flex justify-content-center align-items-center me-3 border" style="width: 45px; height: 45px;">
+                                <span class="fw-bold text-secondary">{{ substr($member->name, 0, 1) }}</span>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-dark">{{ $member->name }}</h6>
+                                <div class="small text-muted">
+                                    <span class="badge bg-light text-dark border me-1">{{ ucfirst($member->role) }}</span>
+                                    {{ $member->position ?? 'No Position' }}
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="p-4 text-center text-muted">
+                            <i class="bi bi-person-x display-4 mb-2 d-block"></i>
+                            No employees assigned to your department yet.
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('supervisorTeamChart');
+        if (ctx) {
+            new Chart(ctx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Present', 'Late', 'Absent'],
+                    datasets: [{
+                        data: [
+                            {{ $teamPresent ?? 0 }}, 
+                            {{ $teamLate ?? 0 }}, 
+                            {{ $teamAbsent ?? 0 }}
+                        ],
+                        backgroundColor: ['#198754', '#ffc107', '#dc3545'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '70%'
+                }
+            });
+        }
+    });
+</script>
+@endpush
 @endsection

@@ -17,62 +17,43 @@ class DashboardController extends Controller
     // Admin Dashboard
     public function admin()
     {
-        abort_if(Auth::user()->role !== 'admin', 403);
-
-        // 1. User Counters
-        $totalUsers = User::count(); 
-        $totalInterns = User::where('role', 'intern')->count();
+        $totalUsers = User::count();
         $totalEmployees = User::where('role', 'employee')->count();
         $totalSupervisors = User::where('role', 'supervisor')->count();
+        $totalInterns = User::where('role', 'intern')->count();
 
-        // 2. Attendance Counters (Today)
+        // Attendance Counters
         $today = Carbon::today();
-        
-        // Count 'Present' (Includes normal Present + Overtime)
-        $presentCount = Attendance::whereDate('date', $today)
-                            ->whereIn('status', ['Present', 'Overtime'])
-                            ->count();
-        
-        // Count 'Late' (Includes Late + Half Day/Incomplete)
-        $lateCount = Attendance::whereDate('date', $today)
-                        ->whereIn('status', ['Late', 'Half Day'])
-                        ->count();
-        
-        // Count 'Absent' (Total Users - Records Found)
-        // Note: This logic assumes if there is no record, they are absent.
+        $presentCount = Attendance::whereDate('date', $today)->whereIn('status', ['Present', 'Overtime'])->count();
+        $lateCount = Attendance::whereDate('date', $today)->whereIn('status', ['Late', 'Half Day'])->count();
         $totalRecordsToday = Attendance::whereDate('date', $today)->count();
         $absentCount = $totalUsers - $totalRecordsToday;
-
         $attendancePercentage = $totalUsers > 0 ? round(($totalRecordsToday / $totalUsers) * 100) : 0;
 
-        // 3. Department Data (For Chart)
-        $departmentData = User::select('department', DB::raw('count(*) as total'))
-                              ->whereNotNull('department')
-                              ->groupBy('department')
-                              ->get();
-        
-        $deptLabels = $departmentData->pluck('department');
-        $deptCounts = $departmentData->pluck('total');
+        // Leave Requests
+        $pendingLeaveRequests = LeaveApplication::with('user')->where('status', 'pending')->orderBy('created_at', 'desc')->get();
 
-        // 4. Pending Leave Requests (NEW LIST)
-        $pendingLeaveRequests = LeaveApplication::with('user')
-                                    ->where('status', 'pending')
-                                    ->latest()
-                                    ->take(5)
-                                    ->get();
+        // Department Data for Chart
+        $departments = User::select('department', DB::raw('count(*) as total'))
+                        ->whereNotNull('department')
+                        ->groupBy('department')
+                        ->get();
+        $deptLabels = $departments->pluck('department');
+        $deptCounts = $departments->pluck('total');
+
+        $announcements = Announcement::latest()->take(3)->get();
 
         return view('admin.dashboard', compact(
-            'totalUsers', 'totalInterns', 'totalEmployees', 'totalSupervisors',
+            'totalUsers', 'totalEmployees', 'totalSupervisors', 'totalInterns',
             'presentCount', 'lateCount', 'absentCount', 'attendancePercentage',
-            'deptLabels', 'deptCounts',
-            'pendingLeaveRequests' // <--- Passed to view
+            'pendingLeaveRequests', 'deptLabels', 'deptCounts', 'announcements'
         ));
     }
     
     // Supervisor Dashboard
     public function supervisor()
     {
-        abort_if(Auth::user()->role !== 'supervisor', 403);
+        if(Auth::user()->role !== 'supervisor') abort(403);
         return $this->getDashboardData('employee.dashboard', false, true);
     }
 
@@ -85,10 +66,11 @@ class DashboardController extends Controller
     // Intern Dashboard
     public function intern()
     {
-        abort_if(Auth::user()->role !== 'intern', 403);
+        if(Auth::user()->role !== 'intern') abort(403);
         return $this->getDashboardData('employee.dashboard', true, false);
     }
 
+    // === HELPER FUNCTION ===
     private function getDashboardData($viewName, $isIntern = false, $isSupervisor = false)
     {
         $user = Auth::user();
@@ -109,82 +91,69 @@ class DashboardController extends Controller
         $recentDocuments = [];
         $pendingInternDocuments = []; 
         
-        // Supervisor Stats
         $myInternsCount = 0;
         $pendingReviewCount = 0;
         $signedCount = 0;
         
-        // Chart Data Variables
         $teamPresent = 0;
         $teamLate = 0;
         $teamAbsent = 0;
         $totalTeam = 0;
+        $myTeam = []; 
 
         if ($isIntern) {
             $recentDocuments = InternDocument::where('user_id', $userId)->latest()->take(5)->get();
         } 
         elseif ($isSupervisor) {
-            // A. Fetch Pending Documents
-            $pendingInternDocuments = InternDocument::with('user')
-                                        ->where('status', 'pending')
-                                        ->orderBy('created_at', 'desc')
-                                        ->get();
+            // === MODIFIED SECTION START ===
 
-            // B. Identify "My Team" (Interns & Employees in same Department)
-            // You can also use 'supervisor_id' if you have set that up relationally.
-            $myTeam = User::where('department', $user->department)
-                          ->where('id', '!=', $user->id) // Exclude self
-                          ->whereIn('role', ['employee', 'intern'])
-                          ->get();
+            // B. Identify "My Team" (Strictly by supervisor_id assignment)
+            // This fetches users who have THIS user as their supervisor
+            $myTeam = User::where('supervisor_id', $userId)->get();
 
             $myInternsCount = $myTeam->where('role', 'intern')->count();
             $totalTeam = $myTeam->count();
 
-            // C. Calculate Team Attendance for Chart
-            // Get IDs of team members
+            // A. Fetch Pending Documents (Only from assigned team members)
+            $pendingInternDocuments = InternDocument::with('user')
+                                        ->whereHas('user', function($query) use ($userId) {
+                                            // Filter: User's supervisor must be Me
+                                            $query->where('supervisor_id', $userId);
+                                        })
+                                        ->where('status', 'pending')
+                                        ->orderBy('created_at', 'desc')
+                                        ->get();
+            // === MODIFIED SECTION END ===
+
+            // C. Calculate Team Attendance
             $teamIds = $myTeam->pluck('id');
-            
-            // Fetch today's attendance for these users
             $teamAttendance = Attendance::whereIn('user_id', $teamIds)
                                         ->where('date', $today)
                                         ->get();
 
-            $teamPresent = $teamAttendance->where('status', 'Present')->count();
-            // Group 'Late' and 'Half Day' as Late for the chart, or separate them
+            $teamPresent = $teamAttendance->whereIn('status', ['Present', 'Overtime'])->count();
             $teamLate = $teamAttendance->whereIn('status', ['Late', 'Half Day'])->count();
             
-            // Absent = Total Team - (Present + Late)
-            // Note: This assumes anyone without a record is Absent
             $recordedCount = $teamPresent + $teamLate; 
             $teamAbsent = $totalTeam - $recordedCount;
+            if($teamAbsent < 0) $teamAbsent = 0;
 
             // D. Other Supervisor Counts
-            $pendingReviewCount = InternDocument::where('status', 'pending')->count();
-            $signedCount = InternDocument::where('status', 'signed')->count();
+            $pendingReviewCount = $pendingInternDocuments->count(); // Updated to count the filtered collection
+            $signedCount = InternDocument::whereHas('user', function($q) use ($userId){
+                                $q->where('supervisor_id', $userId);
+                           })->where('status', 'signed')->count();
         } 
         else {
             $recentLeaves = LeaveApplication::where('user_id', $userId)->latest()->take(5)->get();
         }
 
         return view($viewName, compact(
-            'todayAttendance', 
-            'totalLeaves', 
-            'approvedCount', 
-            'rejectedCount', 
-            'cancelledCount', 
-            'recentLeaves',
-            'recentDocuments',
-            'pendingInternDocuments',
-            'announcements',
-            // Supervisor Stats
-            'myInternsCount',
-            'pendingReviewCount',
-            'signedCount',
-            // Chart Data
-            'teamPresent',
-            'teamLate',
-            'teamAbsent',
-            'totalTeam'
+            'todayAttendance', 'totalLeaves', 'approvedCount', 'rejectedCount', 'cancelledCount', 
+            'recentLeaves', 'recentDocuments', 'pendingInternDocuments', 'announcements',
+            'myInternsCount', 'pendingReviewCount', 'signedCount',
+            'teamPresent', 'teamLate', 'teamAbsent', 'totalTeam', 
+            'myTeam'
         ));
     }
 }
