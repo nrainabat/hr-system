@@ -99,7 +99,7 @@
                 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn text-white" style="background-color: #0d2e4e;">Update Job</button>
+                    <button type="submit" class="btn btn-success">Update</button>
                 </div>
             </form>
         </div>

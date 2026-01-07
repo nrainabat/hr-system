@@ -10,61 +10,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f8f9fa;
-            padding-top: 70px; 
-            padding-bottom: 70px;
-        }
-        .navbar-brand {
-            font-weight: 600;
-            font-size: 1.25rem;
-        }
-        .offcanvas {
-            background-color: #123456; 
-            color: white;
-            width: 280px !important;
-        }
-        .offcanvas .btn-close {
-            filter: invert(1) grayscale(100%) brightness(200%);
-        }
-        /* Main Link Styles */
-        .offcanvas-body .nav-link {
-            color: rgba(255, 255, 255, 0.85);
-            font-size: 1rem;
-            padding: 12px 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex;
-            justify-content: space-between; /* Pushes arrow to the right */
-            align-items: center;
-        }
-        .offcanvas-body .nav-link:hover {
-            color: #fff;
-            background-color: rgba(255, 255, 255, 0.1);
-            transition: all 0.3s;
-        }
-        /* Submenu Styles */
-        .sub-menu {
-            background-color: rgba(0, 0, 0, 0.2);
-        }
-        .sub-menu .nav-link {
-            padding-left: 3rem; /* Indent sub-items */
-            font-size: 0.95rem;
-            border-bottom: none;
-        }
-        /* Arrow Rotation */
-        .nav-link[aria-expanded="true"] .bi-chevron-right {
-            transform: rotate(90deg);
-            transition: transform 0.3s;
-        }
-        .bi-chevron-right {
-            transition: transform 0.3s;
-            font-size: 0.8rem;
-        }
+        body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; padding-top: 70px; padding-bottom: 70px; }
+        .navbar-brand { font-weight: 600; font-size: 1.25rem; }
+        .offcanvas { background-color: #123456; color: white; width: 280px !important; }
+        .offcanvas .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+        .offcanvas-body .nav-link { color: rgba(255, 255, 255, 0.85); font-size: 1rem; padding: 12px 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); display: flex; justify-content: space-between; align-items: center; }
+        .offcanvas-body .nav-link:hover { color: #fff; background-color: rgba(255, 255, 255, 0.1); transition: all 0.3s; }
+        .sub-menu { background-color: rgba(0, 0, 0, 0.2); }
+        .sub-menu .nav-link { padding-left: 3rem; font-size: 0.95rem; border-bottom: none; }
+        .nav-link[aria-expanded="true"] .bi-chevron-right { transform: rotate(90deg); transition: transform 0.3s; }
+        .bi-chevron-right { transition: transform 0.3s; font-size: 0.8rem; }
     </style>
     @stack('styles')
 </head>
-
 <body>
 
 {{-- TOP NAVBAR --}}
@@ -76,13 +34,10 @@
             </button>
             <a class="navbar-brand text-white" href="#">iManageHR</a>
         </div>
-
         <ul class="navbar-nav ms-auto flex-row">
             @auth
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown">
-                        {{ Auth::user()->username }}
-                    </a>
+                    <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown">{{ Auth::user()->username }}</a>
                     <ul class="dropdown-menu dropdown-menu-end position-absolute">
                         <li><a class="dropdown-item" href="{{ route('profile.show') }}">Profile</a></li>
                         <li><hr class="dropdown-divider"></li>
@@ -109,45 +64,33 @@
     <div class="offcanvas-body p-0">
         <nav class="nav flex-column">
             @auth
-
-                {{-- 1. DASHBOARD --}}
+                {{-- DASHBOARD --}}
                 @if(Auth::user()->role === 'admin')
-                    <a class="nav-link" href="/admin/dashboard">
-                        <span><i class="bi bi-speedometer2 me-2"></i> Dashboard</span>
-                    </a>
+                    <a class="nav-link" href="/admin/dashboard"><span><i class="bi bi-speedometer2 me-2"></i> Dashboard</span></a>
                 @elseif(Auth::user()->role === 'supervisor')
-                    <a class="nav-link" href="/supervisor/dashboard">
-                        <span><i class="bi bi-speedometer2 me-2"></i> Dashboard</span>
-                    </a>
+                    <a class="nav-link" href="/supervisor/dashboard"><span><i class="bi bi-speedometer2 me-2"></i> Dashboard</span></a>
                 @else
-                    <a class="nav-link" href="{{ route('dashboard') }}">
-                        <span><i class="bi bi-speedometer2 me-2"></i> Dashboard</span>
-                    </a>
+                    <a class="nav-link" href="{{ route('dashboard') }}"><span><i class="bi bi-speedometer2 me-2"></i> Dashboard</span></a>
                 @endif
 
-
-                {{-- 2. ADMIN LINKS --}}
+                {{-- ADMIN LINKS --}}
                 @if(Auth::user()->role === 'admin')
-                    {{-- Users Collapsible --}}
                     <a class="nav-link" data-bs-toggle="collapse" href="#adminUsersMenu" role="button" aria-expanded="false">
-                        <span><i class="bi bi-people me-2"></i> Employee</span>
-                        <i class="bi bi-chevron-right"></i>
+                        <span><i class="bi bi-people me-2"></i> Employee</span><i class="bi bi-chevron-right"></i>
                     </a>
                     <div class="collapse sub-menu" id="adminUsersMenu">
                         <nav class="nav flex-column">
                             <a class="nav-link" href="{{ route('admin.users.create') }}">New Employee</a>
-                            {{-- Assuming you have a route list --}}
                             <a class="nav-link" href="{{ route('admin.directory') }}">Employee Directory</a>
                         </nav>
                     </div>
 
                     <a class="nav-link" data-bs-toggle="collapse" href="#orgMenu" role="button" aria-expanded="false">
-                        <span><i class="bi bi-building me-2"></i> Organization</span>
-                        <i class="bi bi-chevron-right"></i>
+                        <span><i class="bi bi-building me-2"></i> Organization</span><i class="bi bi-chevron-right"></i>
                     </a>
                     <div class="collapse sub-menu" id="orgMenu">
                         <nav class="nav flex-column">
-                            {{-- Ensure these route names match exactly what is in web.php --}}
+                            {{-- UPDATED LINKS with .index --}}
                             <a class="nav-link" href="{{ route('admin.org.departments.index') }}">Departments</a>
                             <a class="nav-link" href="{{ route('admin.org.jobs.index') }}">Job Positions</a>
                             <a class="nav-link" href="{{ route('admin.org.structure.assignments') }}">Structure</a>
@@ -155,36 +98,26 @@
                     </div>
 
                     <a class="nav-link" data-bs-toggle="collapse" href="#adminLeaveMenu" role="button" aria-expanded="false">
-                        <span><i class="bi bi-calendar-week me-2"></i> Leave Management</span>
-                        <i class="bi bi-chevron-right"></i>
+                        <span><i class="bi bi-calendar-week me-2"></i> Leave Management</span><i class="bi bi-chevron-right"></i>
                     </a>
                     <div class="collapse sub-menu" id="adminLeaveMenu">
                         <nav class="nav flex-column">
-                            <a class="nav-link" href="{{ route('admin.leave.requests') }}">Leave Requests</a>
+                            <a class="nav-link" href="{{ route('admin.leave.requests') }}">Pending Requests</a>
                             <a class="nav-link" href="{{ route('admin.leave.balances') }}">Leave Count</a>
-                            <a class="nav-link" href="{{ route('admin.leave.types') }}">Leave Types</a>
+                            <a class="nav-link" href="{{ route('admin.leave.types') }}">Manage Types</a>
                         </nav>
                     </div>
 
-                    {{-- In the Admin Links Section --}}
                     <a class="nav-link" href="{{ route('admin.attendance') }}">
                         <span><i class="bi bi-clock me-2"></i> Attendance Log</span>
                     </a>
                 @endif
 
-
-                {{-- 3. EMPLOYEE & INTERN SHARED LINKS --}}
+                {{-- EMPLOYEE & INTERN --}}
                 @if(Auth::user()->role === 'employee' || Auth::user()->role === 'intern' || Auth::user()->role === 'supervisor')
-                    
-                    {{-- Attendance (Direct) --}}
-                    <a class="nav-link" href="{{ route('attendance.index') }}">
-                        <span><i class="bi bi-calendar-check me-2"></i> Attendance</span>
-                    </a>
-
-                    {{-- Leave Collapsible --}}
+                    <a class="nav-link" href="{{ route('attendance.index') }}"><span><i class="bi bi-calendar-check me-2"></i> Attendance</span></a>
                     <a class="nav-link" data-bs-toggle="collapse" href="#leaveMenu" role="button" aria-expanded="false">
-                        <span><i class="bi bi-briefcase me-2"></i> Leave</span>
-                        <i class="bi bi-chevron-right"></i>
+                        <span><i class="bi bi-briefcase me-2"></i> Leave</span><i class="bi bi-chevron-right"></i>
                     </a>
                     <div class="collapse sub-menu" id="leaveMenu">
                         <nav class="nav flex-column">
@@ -194,12 +127,10 @@
                     </div>
                 @endif
 
-
-                {{-- 4. INTERN SPECIFIC (Documents) --}}
+                {{-- INTERN --}}
                 @if(Auth::user()->role === 'intern')
                     <a class="nav-link" data-bs-toggle="collapse" href="#internDocsMenu" role="button" aria-expanded="false">
-                        <span><i class="bi bi-file-earmark-text me-2"></i> My Documents</span>
-                        <i class="bi bi-chevron-right"></i>
+                        <span><i class="bi bi-file-earmark-text me-2"></i> My Documents</span><i class="bi bi-chevron-right"></i>
                     </a>
                     <div class="collapse sub-menu" id="internDocsMenu">
                         <nav class="nav flex-column">
@@ -209,71 +140,48 @@
                     </div>
                 @endif
 
-
-                {{-- 5. SUPERVISOR SPECIFIC --}}
+                {{-- SUPERVISOR --}}
                 @if(Auth::user()->role === 'supervisor')
                     <a class="nav-link" data-bs-toggle="collapse" href="#supervisorDocsMenu" role="button" aria-expanded="false">
-                        <span><i class="bi bi-file-earmark-check me-2"></i> Document Reviews</span>
-                        <i class="bi bi-chevron-right"></i>
+                        <span><i class="bi bi-file-earmark-check me-2"></i> Document Reviews</span><i class="bi bi-chevron-right"></i>
                     </a>
                     <div class="collapse sub-menu" id="supervisorDocsMenu">
                         <nav class="nav flex-column">
                             <a class="nav-link" href="{{ route('supervisor.documents.index') }}">Pending Reviews</a>
-                            {{-- Add more supervisor links here if needed --}}
                         </nav>
                     </div>
                 @endif
-
             @endauth
         </nav>
     </div>
 </div>
 
 <main class="container-fluid px-4">
+    
+    {{-- GLOBAL SUCCESS MESSAGE --}}
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    {{-- GLOBAL ERROR MESSAGE (Optional but recommended) --}}
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     @yield('content')
 </main>
 
-@if(session('success'))
-<div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1055;">
-    <div id="successToast" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body fs-6">
-                <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    </div>
-</div>
-@endif
-
-@if(session('error'))
-<div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1055;">
-    <div id="errorToast" class="toast align-items-center text-white bg-danger border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body fs-6">
-                <i class="bi bi-exclamation-circle-fill me-2"></i> {{ session('error') }}
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    </div>
-</div>
-@endif
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-{{-- Auto-Initialize Toasts --}}
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var toastElList = [].slice.call(document.querySelectorAll('.toast'));
-        var toastList = toastElList.map(function (toastEl) {
-            // Show toast and stay for 4 seconds
-            return new bootstrap.Toast(toastEl, { delay: 4000 });
-        });
-        toastList.forEach(toast => toast.show());
-    });
-</script>
-
 @stack('scripts')
-
 </body>
 </html>

@@ -17,10 +17,8 @@
     <div class="row">
         <div class="col-md-4">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-light border-bottom-0 pt-3 pb-2">
-                    <h5 class="card-title text-dark">
+                <div class="card-header fw-bold" style="background-color: #e9ecef; color: #333;">
                         <i class="bi bi-buildings me-2"></i> Add Department
-                    </h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('admin.org.departments.store') }}" method="POST">
@@ -39,19 +37,16 @@
         </div>
 
         <div class="col-md-8">
+            <h5 class="fw-bold mb-3" style="color: #123456;">
+                <i class="bi bi-list-ul me-2"></i> Current Departments
+            </h5>
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-bottom-0 pt-3 pb-2">
-                    <h5 class="card-title text-dark">
-                        <i class="bi bi-list-ul me-2"></i> Current Departments
-                    </h5>
-                </div>
                 <div class="card-body p-0">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
                                 <th class="ps-4">Name</th>
                                 <th>Created Date</th>
-                                <th class="text-center">Employees</th>
                                 <th class="text-end pe-4">Action</th>
                             </tr>
                         </thead>
@@ -61,12 +56,6 @@
                                 <td class="ps-4 fw-bold text-dark">{{ $dept->name }}</td>
                                 <td class="text-muted small">
                                     {{ $dept->created_at ? $dept->created_at->format('d M Y') : '-' }}
-                                </td>
-                                
-                                <td class="text-center">
-                                    <span class="badge bg-light text-dark border border-secondary rounded-pill px-3">
-                                        {{ $dept->employees_count ?? 0 }}
-                                    </span>
                                 </td>
 
                                 <td class="text-end pe-4">
@@ -124,7 +113,7 @@
                 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn fw-bold text-white" style="background-color: #0d2e4e;">Update Department</button>
+                    <button type="submit" class="btn btn-success">update</button>
                 </div>
             </form>
         </div>

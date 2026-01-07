@@ -59,7 +59,7 @@
 
                             {{-- EDIT MODAL (POP-UP) --}}
                             <div class="modal fade" id="editTypeModal{{ $type->id }}" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-dialog">
                                     <div class="modal-content border-0 shadow">
                                         {{-- Modal Header --}}
                                         <div class="modal-header text-white" style="background-color: #123456;">
@@ -81,9 +81,8 @@
 
                                                 <div class="d-flex justify-content-end gap-2">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                    {{-- "UPDATE" BUTTON IS GREEN AND BOLD --}}
                                                     <button type="submit" class="btn btn-success">
-                                                        Update Leave Type
+                                                        Update
                                                     </button>
                                                 </div>
                                             </form>

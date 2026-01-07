@@ -110,20 +110,23 @@ Route::middleware(['auth'])->group(function () {
     // This prefix 'admin.org.' matches the view calls like 'admin.org.departments.store'
     Route::prefix('admin/organization')->name('admin.org.')->group(function() {
         
-        // Departments
-        Route::prefix('admin/organization/departments')->name('admin.org.departments.')->group(function () {
-        Route::get('/', [OrganizationController::class, 'indexDepartments'])->name('index');
-        Route::post('/', [OrganizationController::class, 'storeDepartment'])->name('store');
-        Route::put('/{id}', [OrganizationController::class, 'updateDepartment'])->name('update');
-        Route::delete('/{id}', [OrganizationController::class, 'destroyDepartment'])->name('destroy');
+       // 1. Departments Group (Prefix: admin.org.departments.)
+        Route::prefix('departments')->name('departments.')->group(function() {
+            Route::get('/', [OrganizationController::class, 'indexDepartments'])->name('index'); // -> admin.org.departments.index
+            Route::post('/', [OrganizationController::class, 'storeDepartment'])->name('store');
+            Route::get('/{id}/edit', [OrganizationController::class, 'editDepartment'])->name('edit');
+            Route::put('/{id}', [OrganizationController::class, 'updateDepartment'])->name('update');
+            Route::delete('/{id}', [OrganizationController::class, 'destroyDepartment'])->name('destroy'); // Fixes missing delete route
         });
 
-        // Jobs
-        Route::get('/jobs', [OrganizationController::class, 'indexJobs'])->name('jobs');
-        Route::post('/jobs', [OrganizationController::class, 'storeJob'])->name('jobs.store');
-        Route::get('/jobs/{id}/edit', [OrganizationController::class, 'editJob'])->name('jobs.edit'); 
-        Route::put('/jobs/{id}', [OrganizationController::class, 'updateJob'])->name('jobs.update'); 
-        Route::delete('/jobs/{id}', [OrganizationController::class, 'destroyJob'])->name('jobs.destroy');
+        // 2. Job Positions Group (Prefix: admin.org.jobs.)
+        Route::prefix('jobs')->name('jobs.')->group(function() {
+            Route::get('/', [OrganizationController::class, 'indexJobs'])->name('index'); // -> admin.org.jobs.index
+            Route::post('/', [OrganizationController::class, 'storeJob'])->name('store');
+            Route::get('/{id}/edit', [OrganizationController::class, 'editJob'])->name('edit');
+            Route::put('/{id}', [OrganizationController::class, 'updateJob'])->name('update');
+            Route::delete('/{id}', [OrganizationController::class, 'destroyJob'])->name('destroy');
+        });
         
 
         // 1. Supervisor Assignments

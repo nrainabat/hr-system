@@ -9,7 +9,9 @@ use App\Models\User;
 
 class OrganizationController extends Controller
 {
-    // === DEPARTMENTS ===
+    // ==========================================
+    // DEPARTMENTS
+    // ==========================================
     public function indexDepartments()
     {
         $departments = Department::orderBy('name')->get();
@@ -26,30 +28,32 @@ class OrganizationController extends Controller
         return back()->with('success', 'Department added successfully!');
     }
 
-    // NEW: Show Edit Form
+    // Show Edit Form (If you still use separate page)
     public function editDepartment($id)
     {
         $department = Department::findOrFail($id);
         return view('admin.organization.editDepartment', compact('department'));
     }
 
-    // NEW: Update Data
+    // UPDATE DATA
     public function updateDepartment(Request $request, $id)
     {
         $request->validate(['name' => 'required|unique:departments,name,'.$id]);
         Department::findOrFail($id)->update($request->all());
-        return redirect()->route('admin.org.departments')->with('success', 'Department updated successfully!');
+
+        // FIX: Changed 'admin.org.departments' to 'admin.org.departments.index'
+        return redirect()->route('admin.org.departments.index')->with('success', 'Department updated successfully!');
     }
 
     public function destroyDepartment($id)
     {
-        $department = \App\Models\Department::findOrFail($id);
-        $department->delete();
-
-        return redirect()->back()->with('success', 'Department deleted successfully.');
+        Department::findOrFail($id)->delete();
+        return back()->with('success', 'Department removed.');
     }
 
-    // === JOB POSITIONS ===
+    // ==========================================
+    // JOB POSITIONS
+    // ==========================================
     public function indexJobs()
     {
         $jobs = JobPosition::orderBy('title')->get();
@@ -63,65 +67,59 @@ class OrganizationController extends Controller
         return back()->with('success', 'Job Position added successfully!');
     }
 
-    // NEW: Show Edit Form
+    // Show Edit Form
     public function editJob($id)
     {
         $job = JobPosition::findOrFail($id);
         return view('admin.organization.editJob', compact('job'));
     }
 
-    // NEW: Update Data
+    // UPDATE DATA
     public function updateJob(Request $request, $id)
     {
         $request->validate(['title' => 'required|unique:job_positions,title,'.$id]);
         JobPosition::findOrFail($id)->update($request->all());
-        return redirect()->route('admin.org.jobs')->with('success', 'Job Position updated successfully!');
+
+        // FIX: Changed 'admin.org.jobs' to 'admin.org.jobs.index'
+        return redirect()->route('admin.org.jobs.index')->with('success', 'Job Position updated successfully!');
     }
 
     public function destroyJob($id)
-{
-    // Find and delete the job
-    $job = \App\Models\JobPosition::findOrFail($id);
-    $job->delete();
+    {
+        JobPosition::findOrFail($id)->delete();
+        return back()->with('success', 'Job Position removed.');
+    }
 
-    // Redirect back with success message
-    return redirect()->back()->with('success', 'Job position deleted successfully.');
-}
-
+    // ==========================================
+    // STRUCTURE ASSIGNMENTS
+    // ==========================================
     public function structureAssignments()
     {
-        // 1. Get all employees & interns to show in the list
         $staffList = User::whereIn('role', ['employee', 'intern'])
                          ->with('supervisor')
                          ->orderBy('name')
                          ->get();
 
-        // 2. Get list of Supervisors for the dropdown
         $supervisors = User::where('role', 'supervisor')->orderBy('name')->get();
-
-        // 3. Get list of Staff for the dropdown
         $employees = User::whereIn('role', ['employee', 'intern'])->orderBy('name')->get();
 
         return view('admin.organization.structAssignment', compact('staffList', 'supervisors', 'employees'));
     }
 
     // ==========================================
-    // NEW STRUCTURE: TEAM DEPARTMENT VIEW
+    // TEAM VIEW
     // ==========================================
     public function structureTeams(Request $request)
     {
-        // 1. Get Departments with employee count
         $departments = Department::orderBy('name')->get();
         
         foreach($departments as $dept) {
             $dept->user_count = User::where('department', $dept->name)->count();
         }
 
-        // 2. Determine Selected Department
         $selectedDeptId = $request->get('department_id', $departments->first()->id ?? 0);
         $selectedDept = Department::find($selectedDeptId);
 
-        // 3. Get Employees for the selected department
         $employees = [];
         if ($selectedDept) {
             $employees = User::where('department', $selectedDept->name)
@@ -133,7 +131,7 @@ class OrganizationController extends Controller
     }
 
     // ==========================================
-    // ACTIONS (Assign/Unassign)
+    // ACTIONS
     // ==========================================
     public function assignSupervisor(Request $request)
     {
