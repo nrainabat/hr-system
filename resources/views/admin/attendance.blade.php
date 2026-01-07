@@ -8,9 +8,6 @@
         <h4 class="fw-bold" style="color: #123456;">
             <i class="bi bi-file-earmark-spreadsheet me-2"></i> Employee Attendance Log
         </h4>
-        <button class="btn btn-outline-dark btn-sm" onclick="window.print()">
-            <i class="bi bi-printer me-1"></i> Print Report
-        </button>
     </div>
 
     <div class="card shadow-sm border-0">

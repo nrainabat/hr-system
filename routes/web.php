@@ -145,6 +145,7 @@ Route::middleware(['auth'])->prefix('admin/leave')->name('admin.leave.')->group(
     Route::get('/types', [AdminLeaveController::class, 'indexTypes'])->name('types');
     Route::post('/types', [AdminLeaveController::class, 'storeType'])->name('types.store');
     Route::delete('/types/{id}', [AdminLeaveController::class, 'destroyType'])->name('types.delete');
+    Route::put('/types/{id}', [AdminLeaveController::class, 'updateType'])->name('types.update');
 
     // 2. Leave Requests
     Route::get('/requests', [AdminLeaveController::class, 'indexRequests'])->name('requests');

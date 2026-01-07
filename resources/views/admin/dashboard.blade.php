@@ -123,10 +123,12 @@
                 <div class="card-body p-4 d-flex flex-column justify-content-center align-items-center text-center">
                     <i class="bi bi-clock-history display-4 mb-3 text-warning"></i>
                     <h5 class="fw-light">Current Server Time</h5>
-                    <h2 class="fw-bold" id="liveClock">{{ date('H:i A') }}</h2>
+                    {{-- UPDATED TO 12-HOUR FORMAT --}}
+                    <h2 class="fw-bold" id="liveClock">{{ date('h:i A') }}</h2>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
      {{-- 5. Pending Leave Requests & Quick Actions --}}

@@ -27,6 +27,16 @@ class AdminLeaveController extends Controller
         return back()->with('success', 'Leave Type added successfully.');
     }
 
+    public function updateType(Request $request, $id)
+    {
+        $request->validate(['name' => 'required|unique:leave_types,name,' . $id]);
+        
+        $type = LeaveType::findOrFail($id);
+        $type->update(['name' => $request->name]);
+
+        return back()->with('success', 'Leave Type updated successfully.');
+    }
+
     public function destroyType($id)
     {
         LeaveType::findOrFail($id)->delete();
