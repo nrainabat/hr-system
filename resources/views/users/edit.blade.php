@@ -117,7 +117,8 @@
                             {{-- RIGHT: Cancel & Update Buttons --}}
                             <div class="d-flex gap-2">
                                 <a href="{{ route('admin.directory') }}" class="btn btn-secondary px-4">Cancel</a>
-                                <button type="submit" class="btn text-white px-4" style="background-color: #123456;">Update Details</button>
+                                {{-- GREEN & BOLD BUTTON --}}
+                                <button type="submit" class="btn btn-success px-4 fw-bold">Update Details</button>
                             </div>
                         </div>
                     </form>

@@ -111,18 +111,20 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin/organization')->name('admin.org.')->group(function() {
         
         // Departments
-        Route::get('/departments', [OrganizationController::class, 'indexDepartments'])->name('departments');
-        Route::post('/departments', [OrganizationController::class, 'storeDepartment'])->name('departments.store');
-        Route::get('/departments/{id}/edit', [OrganizationController::class, 'editDepartment'])->name('departments.edit'); // <--- NEW
-        Route::put('/departments/{id}', [OrganizationController::class, 'updateDepartment'])->name('departments.update'); // <--- NEW
-        Route::delete('/departments/{id}', [OrganizationController::class, 'destroyDepartment'])->name('departments.delete');
+        Route::prefix('admin/organization/departments')->name('admin.org.departments.')->group(function () {
+        Route::get('/', [OrganizationController::class, 'indexDepartments'])->name('index');
+        Route::post('/', [OrganizationController::class, 'storeDepartment'])->name('store');
+        Route::put('/{id}', [OrganizationController::class, 'updateDepartment'])->name('update');
+        Route::delete('/{id}', [OrganizationController::class, 'destroyDepartment'])->name('destroy');
+        });
 
         // Jobs
         Route::get('/jobs', [OrganizationController::class, 'indexJobs'])->name('jobs');
         Route::post('/jobs', [OrganizationController::class, 'storeJob'])->name('jobs.store');
         Route::get('/jobs/{id}/edit', [OrganizationController::class, 'editJob'])->name('jobs.edit'); 
         Route::put('/jobs/{id}', [OrganizationController::class, 'updateJob'])->name('jobs.update'); 
-        Route::delete('/jobs/{id}', [OrganizationController::class, 'destroyJob'])->name('jobs.delete');
+        Route::delete('/jobs/{id}', [OrganizationController::class, 'destroyJob'])->name('jobs.destroy');
+        
 
         // 1. Supervisor Assignments
         Route::get('/structure/assignments', [OrganizationController::class, 'structureAssignments'])->name('structure.assignments');

@@ -110,7 +110,7 @@
         <nav class="nav flex-column">
             @auth
 
-                {{-- 1. DASHBOARD (Direct Link - No Arrow) --}}
+                {{-- 1. DASHBOARD --}}
                 @if(Auth::user()->role === 'admin')
                     <a class="nav-link" href="/admin/dashboard">
                         <span><i class="bi bi-speedometer2 me-2"></i> Dashboard</span>
@@ -148,8 +148,8 @@
                     <div class="collapse sub-menu" id="orgMenu">
                         <nav class="nav flex-column">
                             {{-- Ensure these route names match exactly what is in web.php --}}
-                            <a class="nav-link" href="{{ route('admin.org.departments') }}">Departments</a>
-                            <a class="nav-link" href="{{ route('admin.org.jobs') }}">Job Positions</a>
+                            <a class="nav-link" href="{{ route('admin.org.departments.index') }}">Departments</a>
+                            <a class="nav-link" href="{{ route('admin.org.jobs.index') }}">Job Positions</a>
                             <a class="nav-link" href="{{ route('admin.org.structure.assignments') }}">Structure</a>
                         </nav>
                     </div>
@@ -160,9 +160,9 @@
                     </a>
                     <div class="collapse sub-menu" id="adminLeaveMenu">
                         <nav class="nav flex-column">
-                            <a class="nav-link" href="{{ route('admin.leave.requests') }}">Pending Requests</a>
+                            <a class="nav-link" href="{{ route('admin.leave.requests') }}">Leave Requests</a>
                             <a class="nav-link" href="{{ route('admin.leave.balances') }}">Leave Count</a>
-                            <a class="nav-link" href="{{ route('admin.leave.types') }}">Manage Types</a>
+                            <a class="nav-link" href="{{ route('admin.leave.types') }}">Leave Types</a>
                         </nav>
                     </div>
 
@@ -233,7 +233,46 @@
     @yield('content')
 </main>
 
+@if(session('success'))
+<div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1055;">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body fs-6">
+                <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+@endif
+
+@if(session('error'))
+<div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1055;">
+    <div id="errorToast" class="toast align-items-center text-white bg-danger border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body fs-6">
+                <i class="bi bi-exclamation-circle-fill me-2"></i> {{ session('error') }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+@endif
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+{{-- Auto-Initialize Toasts --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+        var toastList = toastElList.map(function (toastEl) {
+            // Show toast and stay for 4 seconds
+            return new bootstrap.Toast(toastEl, { delay: 4000 });
+        });
+        toastList.forEach(toast => toast.show());
+    });
+</script>
+
 @stack('scripts')
 
 </body>

@@ -1,10 +1,12 @@
 @extends('layouts.app')
 @section('title', 'Edit Department')
+
 @section('content')
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-sm border-0">
+                {{-- Header stays Dark Blue --}}
                 <div class="card-header text-white fw-bold" style="background-color: #123456;">
                     <i class="bi bi-pencil-square me-2"></i> Edit Department
                 </div>
@@ -18,7 +20,9 @@
                         </div>
                         <div class="d-flex justify-content-between">
                             <a href="{{ route('admin.org.departments') }}" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn text-white" style="background-color: #123456;">Update Department</button>
+                            <button type="submit" class="btn btn-success fw-bold">
+                                                        Update Department
+                                                    </button>
                         </div>
                     </form>
                 </div>

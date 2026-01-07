@@ -43,8 +43,10 @@ class OrganizationController extends Controller
 
     public function destroyDepartment($id)
     {
-        Department::findOrFail($id)->delete();
-        return back()->with('success', 'Department removed.');
+        $department = \App\Models\Department::findOrFail($id);
+        $department->delete();
+
+        return redirect()->back()->with('success', 'Department deleted successfully.');
     }
 
     // === JOB POSITIONS ===
@@ -77,10 +79,14 @@ class OrganizationController extends Controller
     }
 
     public function destroyJob($id)
-    {
-        JobPosition::findOrFail($id)->delete();
-        return back()->with('success', 'Job Position removed.');
-    }
+{
+    // Find and delete the job
+    $job = \App\Models\JobPosition::findOrFail($id);
+    $job->delete();
+
+    // Redirect back with success message
+    return redirect()->back()->with('success', 'Job position deleted successfully.');
+}
 
     public function structureAssignments()
     {

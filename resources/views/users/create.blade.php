@@ -110,7 +110,8 @@
 
                         <div class="d-flex justify-content-end mt-4 gap-2">
                             <a href="/admin/dashboard" class="btn btn-secondary px-4">Cancel</a>
-                            <button type="submit" class="btn text-white px-4" style="background-color: #123456;">Create User</button>
+                            {{-- GREEN & BOLD BUTTON --}}
+                            <button type="submit" class="btn btn-success px-4 fw-bold">Create User</button>
                         </div>
                     </form>
                 </div>
