@@ -18,6 +18,7 @@
     </div>
 
     <div class="row g-4">
+        {{-- LEFT COLUMN --}}
         <div class="col-lg-8">
             
             {{-- 1. ATTENDANCE SECTION --}}
@@ -114,15 +115,11 @@
 
             {{-- 3. SUPERVISOR TASKS (Pending Reviews) --}}
             @if(Auth::user()->role === 'supervisor')
-                
-                {{-- HEADER --}}
                 <div class="mb-3 mt-4">
                      <h4 class="fw-bold" style="color: #123456;">
                         <i class="bi bi-shield-lock-fill me-2"></i> Supervisor Management
                     </h4>
                 </div>
-
-                {{-- Pending Reviews Table --}}
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
                         <h6 class="mb-0 fw-bold" style="color: #123456;">
@@ -248,6 +245,7 @@
 
         </div>
 
+        {{-- RIGHT COLUMN --}}
         <div class="col-lg-4">
             
             {{-- 1. PROFILE SUMMARY CARD --}}
@@ -269,7 +267,24 @@
                         <span class="badge bg-light text-dark border">{{ Auth::user()->department ?? 'No Dept' }}</span>
                         <span class="badge bg-light text-dark border">{{ Auth::user()->position ?? 'No Position' }}</span>
                     </div>
-                    <a href="{{ route('profile.show') }}" class="btn btn-outline-secondary btn-sm w-100">View Full Profile</a>
+
+                    {{-- === NEW: DISPLAY ASSIGNED SUPERVISOR === --}}
+                    @if(isset($assignedSupervisor) && $assignedSupervisor)
+                        <div class="border-top pt-3 mt-3">
+                            <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Supervisor</small>
+                            <div class="d-flex align-items-center justify-content-center mt-2 p-2 bg-light rounded">
+                                <div class="rounded-circle bg-white d-flex justify-content-center align-items-center border me-2" style="width: 35px; height: 35px;">
+                                    <span class="fw-bold text-primary small">{{ substr($assignedSupervisor->name, 0, 1) }}</span>
+                                </div>
+                                <div class="text-start">
+                                    <h6 class="mb-0 fw-bold text-dark small">{{ $assignedSupervisor->name }}</h6>
+                                    <small class="text-muted" style="font-size: 0.65rem;">{{ $assignedSupervisor->position ?? 'Supervisor' }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                    
+                    <a href="{{ route('profile.show') }}" class="btn btn-outline-secondary btn-sm w-100 mt-3">View Full Profile</a>
                 </div>
             </div>
 
@@ -326,7 +341,7 @@
                         <h6 class="fw-bold text-muted text-uppercase small mb-3">Total Assigned Employees</h6>
                         <h1 class="display-4 fw-bold mb-3 text-dark">{{ $totalTeam ?? 0 }}</h1>
                         <button type="button" class="btn btn-outline-dark btn-sm w-100" data-bs-toggle="modal" data-bs-target="#teamListModal">
-                            <i class="bi bi-list-ul me-2"></i> View Details
+                            <i class="bi bi-list-ul me-2"></i> View My Team
                         </button>
                     </div>
                 </div>
@@ -367,33 +382,78 @@
 <div class="modal fade" id="teamListModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow">
+            
+            {{-- Modal Header --}}
             <div class="modal-header bg-white border-bottom">
-                <h5 class="modal-title fw-bold" style="color: #123456;"><i class="bi bi-people-fill me-2"></i> My Team Members</h5>
+                <h5 class="modal-title fw-bold" style="color: #123456;">
+                    <i class="bi bi-people-fill me-2"></i> My Team Members
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            
+            {{-- Modal Body --}}
             <div class="modal-body p-0">
                 <div class="list-group list-group-flush">
                     @forelse($myTeam ?? [] as $member)
-                        <div class="list-group-item p-3 d-flex align-items-center">
-                            <div class="rounded-circle bg-light d-flex justify-content-center align-items-center me-3 border" style="width: 45px; height: 45px;">
-                                <span class="fw-bold text-secondary">{{ substr($member->name, 0, 1) }}</span>
-                            </div>
-                            <div>
-                                <h6 class="mb-0 fw-bold text-dark">{{ $member->name }}</h6>
-                                <div class="small text-muted">
-                                    <span class="badge bg-light text-dark border me-1">{{ ucfirst($member->role) }}</span>
-                                    {{ $member->position ?? 'No Position' }}
+                        <div class="list-group-item p-3 d-flex align-items-center justify-content-between">
+                            
+                            {{-- LEFT: Avatar & Info --}}
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-light d-flex justify-content-center align-items-center me-3 border" style="width: 45px; height: 45px;">
+                                    <span class="fw-bold text-secondary">{{ substr($member->name, 0, 1) }}</span>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold text-dark">{{ $member->name }}</h6>
+                                    <div class="small text-muted">
+                                        <span class="badge bg-light text-dark border me-1">{{ ucfirst($member->role) }}</span>
+                                        {{ $member->position ?? 'No Position' }}
+                                    </div>
                                 </div>
                             </div>
+
+                            {{-- RIGHT: Attendance Status --}}
+                            <div class="text-end">
+                                @if(in_array($member->attendance_status, ['Present', 'Overtime']))
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success">
+                                        {{ $member->attendance_status }}
+                                    </span>
+                                    @if($member->clock_in_time)
+                                        <div class="small text-muted mt-1" style="font-size: 0.7rem;">
+                                            <i class="bi bi-clock"></i> {{ \Carbon\Carbon::parse($member->clock_in_time)->format('h:i A') }}
+                                        </div>
+                                    @endif
+
+                                @elseif(in_array($member->attendance_status, ['Late', 'Half Day']))
+                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning">
+                                        {{ $member->attendance_status }}
+                                    </span>
+                                    @if($member->clock_in_time)
+                                        <div class="small text-muted mt-1" style="font-size: 0.7rem;">
+                                            <i class="bi bi-clock"></i> {{ \Carbon\Carbon::parse($member->clock_in_time)->format('h:i A') }}
+                                        </div>
+                                    @endif
+
+                                @else
+                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger">
+                                        Absent
+                                    </span>
+                                    <div class="small text-muted mt-1" style="font-size: 0.7rem;">
+                                        No Record
+                                    </div>
+                                @endif
+                            </div>
+
                         </div>
                     @empty
                         <div class="p-4 text-center text-muted">
                             <i class="bi bi-person-x display-4 mb-2 d-block"></i>
-                            No employees assigned to your department yet.
+                            <p class="mb-0">No employees assigned to you yet.</p>
                         </div>
                     @endforelse
                 </div>
             </div>
+            
+            {{-- Modal Footer --}}
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Close</button>
             </div>

@@ -105,6 +105,18 @@
                                 @endforeach
                                 </select>
                             </div>
+
+                            <div class="col-md-6">
+    <label class="form-label fw-semibold">Assign Supervisor</label>
+    <select name="supervisor_id" class="form-select">
+        <option value="" selected>No Supervisor</option>
+        @foreach($supervisors as $supervisor)
+            <option value="{{ $supervisor->id }}" {{ old('supervisor_id', $user->supervisor_id) == $supervisor->id ? 'selected' : '' }}>
+                {{ $supervisor->name }}
+            </option>
+        @endforeach
+    </select>
+</div>
                         </div>
 
                         {{-- ACTION BUTTONS ROW --}}
