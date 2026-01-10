@@ -25,15 +25,14 @@ class AttendanceController extends Controller
             return redirect()->back()->with('error', 'You have already clocked in for today!');
         }
 
-        // Determine Status based on 9:00 AM rule
-        // If clock in is after 9:00 AM, status is 'Late'
+        // RULE: Clock in before or at 9:00 AM is Present, otherwise Late
         $status = $now->format('H:i') > '09:00' ? 'Late' : 'Present';
 
         Attendance::create([
             'user_id' => $user_id,
             'date' => $today,
             'clock_in' => $now->format('H:i:s'),
-            'status' => $status, // Initial status
+            'status' => $status, // Set initial status based on punctuality
         ]);
 
         return redirect()->back()->with('success', 'Clocked In Successfully! Status: ' . $status);
@@ -56,35 +55,42 @@ class AttendanceController extends Controller
             $clockInTime = Carbon::parse($attendance->clock_in);
             $clockOutTime = $now;
             
-            // Calculate Duration in Hours
-            $duration = $clockInTime->diffInHours($clockOutTime);
+            // Calculate Total Duration in Minutes
+            $totalMinutes = $clockInTime->diffInMinutes($clockOutTime);
             
-            $status = $attendance->status; // Keep existing status (e.g., Late) by default
+            // Define Standard Work Hours (8 Hours = 480 Minutes)
+            $standardWorkMinutes = 8 * 60;
+
+            $status = $attendance->status; // Start with the existing status (Late/Present)
             $overtimeHours = null;
             $message = 'Clocked Out Successfully!';
 
-            // LOGIC RULES:
-            
-            // 1. OVERTIME: Clock Out AFTER 5:00 PM (17:00)
-            if ($clockOutTime->format('H:i') > '17:00') {
-                $status = 'Overtime';
-                // Calculate Overtime (Time past 17:00)
-                $endOfShift = Carbon::parse($today->format('Y-m-d') . ' 17:00:00');
-                $otDuration = $endOfShift->diffInMinutes($clockOutTime);
-                
-                // Format: "1h 30m"
-                $hours = floor($otDuration / 60);
-                $minutes = $otDuration % 60;
-                $overtimeHours = ($hours > 0 ? $hours . 'h ' : '') . ($minutes > 0 ? $minutes . 'm' : '');
-            } 
-            // 2. HALF DAY / NOT COMPLETED: Clock Out BEFORE 5:00 PM (17:00)
-            elseif ($clockOutTime->format('H:i') < '17:00') {
-                // If working hours are roughly 4 hours or less (or significantly early leave)
-                // The requirement says "half day will be if employee working for 4 hours"
-                // And "not completed will display if user clock out before 5 pm"
-                
-                $status = 'Half Day';
-                $message = 'Clocked Out. Status: Not Completed / Half Day';
+            // === LOGIC RULES ===
+
+            // CASE A: Worked LESS than 8 hours
+            if ($totalMinutes < $standardWorkMinutes) {
+                $status = 'Incomplete';
+                $message = 'Clocked Out. Warning: Shift less than 8 hours.';
+            }
+            // CASE B: Worked 8 hours or MORE
+            else {
+                // Check for Overtime (Duration > 8 hours)
+                if ($totalMinutes > $standardWorkMinutes) {
+                    $otMinutes = $totalMinutes - $standardWorkMinutes;
+                    
+                    // Format Overtime: "1h 30m"
+                    $hours = floor($otMinutes / 60);
+                    $minutes = $otMinutes % 60;
+                    $overtimeHours = ($hours > 0 ? $hours . 'h ' : '') . ($minutes > 0 ? $minutes . 'm' : '');
+
+                    // Update Status logic:
+                    // 1. If they were LATE, keep status as 'Late' (but record the OT).
+                    // 2. If they were PRESENT (On Time), change status to 'Overtime'.
+                    if ($status == 'Present') {
+                        $status = 'Overtime';
+                    }
+                }
+                // If exactly 8 hours, status remains 'Present' (or 'Late' if they were late)
             }
             
             // Update Record

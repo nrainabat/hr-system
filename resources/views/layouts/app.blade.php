@@ -10,16 +10,53 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; padding-top: 70px; padding-bottom: 70px; }
-        .navbar-brand { font-weight: 600; font-size: 1.25rem; }
-        .offcanvas { background-color: #123456; color: white; width: 280px !important; }
-        .offcanvas .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
-        .offcanvas-body .nav-link { color: rgba(255, 255, 255, 0.85); font-size: 1rem; padding: 12px 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); display: flex; justify-content: space-between; align-items: center; }
-        .offcanvas-body .nav-link:hover { color: #fff; background-color: rgba(255, 255, 255, 0.1); transition: all 0.3s; }
-        .sub-menu { background-color: rgba(0, 0, 0, 0.2); }
-        .sub-menu .nav-link { padding-left: 3rem; font-size: 0.95rem; border-bottom: none; }
-        .nav-link[aria-expanded="true"] .bi-chevron-right { transform: rotate(90deg); transition: transform 0.3s; }
-        .bi-chevron-right { transition: transform 0.3s; font-size: 0.8rem; }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background-color: #f8f9fa; 
+            padding-top: 70px; 
+            padding-bottom: 70px; 
+        }
+        .navbar-brand { 
+            font-weight: 600; 
+            font-size: 1.25rem; 
+        }
+        .offcanvas { 
+            background-color: #123456; 
+            color: white; 
+            width: 280px !important; 
+        }
+        .offcanvas .btn-close { 
+            filter: invert(1) grayscale(100%) brightness(200%); 
+        }
+        .offcanvas-body .nav-link { 
+            color: rgba(255, 255, 255, 0.85); 
+            font-size: 1rem; padding: 12px 15px; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .offcanvas-body .nav-link:hover { 
+            color: #fff; 
+            background-color: rgba(255, 255, 255, 0.1); 
+            transition: all 0.3s; 
+        }
+        .sub-menu { 
+            background-color: rgba(0, 0, 0, 0.2); 
+        }
+        .sub-menu .nav-link { 
+            padding-left: 3rem; 
+            font-size: 0.95rem; 
+            border-bottom: none; 
+        }
+        .nav-link[aria-expanded="true"] .bi-chevron-right { 
+            transform: rotate(90deg); 
+            transition: transform 0.3s; 
+        }
+        .bi-chevron-right { 
+            transition: transform 0.3s; 
+            font-size: 0.8rem; 
+        }
     </style>
     @stack('styles')
 </head>
@@ -102,14 +139,22 @@
                     </a>
                     <div class="collapse sub-menu" id="adminLeaveMenu">
                         <nav class="nav flex-column">
-                            <a class="nav-link" href="{{ route('admin.leave.requests') }}">Pending Requests</a>
+                            <a class="nav-link" href="{{ route('admin.leave.requests') }}">Leave Requests</a>
                             <a class="nav-link" href="{{ route('admin.leave.balances') }}">Leave Count</a>
-                            <a class="nav-link" href="{{ route('admin.leave.types') }}">Manage Types</a>
+                            <a class="nav-link" href="{{ route('admin.leave.types') }}">Leave Types</a>
                         </nav>
                     </div>
 
                     <a class="nav-link" href="{{ route('admin.attendance') }}">
                         <span><i class="bi bi-clock me-2"></i> Attendance Log</span>
+                    </a>
+
+                    {{-- Admin Reports & Performance --}}
+                    <a class="nav-link" href="{{ route('admin.reports') }}">
+                        <span><i class="bi bi-graph-up-arrow me-2"></i> Analytics</span>
+                    </a>
+                    <a class="nav-link" href="{{ route('performance.index') }}">
+                        <span><i class="bi bi-trophy me-2"></i> Performance</span>
                     </a>
                 @endif
 
@@ -125,6 +170,16 @@
                             <a class="nav-link" href="{{ route('leave.history') }}">Application History</a>
                         </nav>
                     </div>
+                @endif
+                
+                {{-- Employee/Intern/Supervisor Personal Reports --}}
+                @if(in_array(Auth::user()->role, ['employee', 'intern']))
+                     <a class="nav-link" href="{{ route('employee.reports') }}">
+                        <span><i class="bi bi-pie-chart me-2"></i> My Stats</span>
+                    </a>
+                    <a class="nav-link" href="{{ route('performance.index') }}">
+                        <span><i class="bi bi-clipboard-check me-2"></i> My Performance</span>
+                    </a>
                 @endif
 
                 {{-- INTERN --}}
@@ -150,6 +205,15 @@
                             <a class="nav-link" href="{{ route('supervisor.documents.index') }}">Pending Reviews</a>
                         </nav>
                     </div>
+                    
+                    {{-- Supervisor Team Reports --}}
+                    <a class="nav-link" href="{{ route('supervisor.reports') }}">
+                        <span><i class="bi bi-bar-chart-line me-2"></i> Team Reports</span>
+                    </a>
+                    {{-- Supervisor Performance Evaluations --}}
+                    <a class="nav-link" href="{{ route('performance.index') }}">
+                        <span><i class="bi bi-award me-2"></i> Performance Reviews</span>
+                    </a>
                 @endif
             @endauth
         </nav>

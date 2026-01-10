@@ -84,51 +84,72 @@
         <div class="col-md-8">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body p-4">
+                    {{-- Header with Rate --}}
                     <div class="d-flex justify-content-between align-items-end mb-2">
-                        <h4 class="fw-bold mb-0">{{ $attendancePercentage }}% <span class="text-muted fs-6 fw-normal">Attendance Rate</span></h4>
+                        <div>
+                            <h4 class="fw-bold mb-0" style="color: #123456;">
+                                {{ $attendancePercentage }}% 
+                            </h4>
+                            <span class="text-muted small">Daily Attendance Rate</span>
+                        </div>
                         <span class="text-muted small">{{ date('d M Y') }}</span>
                     </div>
                     
-                    {{-- Progress Bar --}}
-                    <div class="progress" style="height: 25px; border-radius: 15px;">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ $attendancePercentage }}%">
-                            {{ $presentCount }} Present
+                    {{-- STACKED Progress Bar --}}
+                    {{-- Calculates widths based on total users to ensure accurate proportions --}}
+                    @php
+                        $totalForCalc = $totalUsers > 0 ? $totalUsers : 1;
+                        $presentPct = ($presentCount / $totalForCalc) * 100;
+                        $latePct = ($lateCount / $totalForCalc) * 100;
+                    @endphp
+
+                    <div class="progress" style="height: 25px; border-radius: 15px; background-color: #f8f9fa; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
+                        {{-- 1. Present (Green) --}}
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ $presentPct }}%" 
+                             aria-valuenow="{{ $presentPct }}" aria-valuemin="0" aria-valuemax="100"
+                             data-bs-toggle="tooltip" title="{{ $presentCount }} On Time">
+                             @if($presentPct > 5) {{ $presentCount }} @endif
                         </div>
-                        <div class="progress-bar bg-light text-muted" role="progressbar" style="width: {{ 100 - $attendancePercentage }}%">
-                            {{ $absentCount }} Absent
+
+                        {{-- 2. Late (Yellow/Warning) --}}
+                        <div class="progress-bar bg-warning text-dark" role="progressbar" 
+                             style="width: {{ $latePct }}%" 
+                             aria-valuenow="{{ $latePct }}" aria-valuemin="0" aria-valuemax="100"
+                             data-bs-toggle="tooltip" title="{{ $lateCount }} Late">
+                             @if($latePct > 5) {{ $lateCount }} @endif
                         </div>
                     </div>
 
+                    {{-- Legend / Key --}}
                     <div class="row mt-4 text-center">
                         <div class="col-4 border-end">
                             <h5 class="fw-bold mb-0 text-success">{{ $presentCount }}</h5>
-                            <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Present</small>
+                            <small class="text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">On Time</small>
                         </div>
                         <div class="col-4 border-end">
                             <h5 class="fw-bold mb-0 text-warning">{{ $lateCount }}</h5>
-                            <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Late Arrival</small>
+                            <small class="text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Late</small>
                         </div>
                         <div class="col-4">
                             <h5 class="fw-bold mb-0 text-danger">{{ $absentCount }}</h5>
-                            <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Absent</small>
+                            <small class="text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Absent</small>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        {{-- Clock In Action --}}
+        {{-- Clock In Action (Remains unchanged) --}}
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100 bg-dark text-white">
                 <div class="card-body p-4 d-flex flex-column justify-content-center align-items-center text-center">
                     <i class="bi bi-clock-history display-4 mb-3 text-warning"></i>
                     <h5 class="fw-light">Current Server Time</h5>
-                    {{-- UPDATED TO 12-HOUR FORMAT --}}
                     <h2 class="fw-bold" id="liveClock">{{ date('h:i A') }}</h2>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 
      {{-- 5. Pending Leave Requests & Quick Actions --}}

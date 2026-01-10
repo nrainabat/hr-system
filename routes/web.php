@@ -171,3 +171,34 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function() {
     Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
     Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.delete');
 });
+
+use App\Http\Controllers\ReportController;
+// Admin
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+    Route::get('/reports', [ReportController::class, 'adminIndex'])->name('admin.reports');
+});
+
+// Supervisor
+Route::middleware(['auth'])->prefix('supervisor')->group(function () {
+    Route::get('/reports', [ReportController::class, 'supervisorIndex'])->name('supervisor.reports');
+});
+
+// Employee & Intern
+Route::middleware(['auth'])->group(function () {
+    Route::get('/my-reports', [ReportController::class, 'employeeIndex'])->name('employee.reports');
+});
+
+
+// PERFORMANCE REVIEWS
+use App\Http\Controllers\PerformanceController;
+Route::middleware(['auth'])->group(function () {
+    // 1. List
+    Route::get('/performance', [PerformanceController::class, 'index'])->name('performance.index');
+    
+    // 2. Create (Restricted to Supervisor/Admin in Controller)
+    Route::get('/performance/create', [PerformanceController::class, 'create'])->name('performance.create');
+    Route::post('/performance', [PerformanceController::class, 'store'])->name('performance.store');
+    
+    // 3. Show
+    Route::get('/performance/{id}', [PerformanceController::class, 'show'])->name('performance.show');
+});
