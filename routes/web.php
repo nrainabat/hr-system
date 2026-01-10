@@ -44,6 +44,9 @@ Route::middleware(['auth'])->group(function () {
 
     // === NEW: Route for Password Reset Modal ===
     Route::put('/admin/users/{id}/password', [UserController::class, 'updatePassword'])->name('admin.users.password');
+
+    //DELETE FUNCTION
+    Route::delete('/admin/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 });
 
 use App\Http\Controllers\ProfileController;

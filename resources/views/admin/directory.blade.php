@@ -5,7 +5,7 @@
 @section('content')
 <div class="container-fluid px-4">
     
-    {{-- 1. Header & Actions --}}
+    {{-- 1. Header & Search Bar --}}
     <div class="row align-items-center my-3">
         <div class="col-md-6">
             <h4 class="fw-bold mb-0" style="color: #123456;">
@@ -39,7 +39,7 @@
                 <div class="card h-100 shadow-sm border-0" style="border-radius: 10px;">
                     <div class="card-body text-center p-3">
                         
-                        {{-- Grid Profile Picture --}}
+                        {{-- Profile Picture --}}
                         <div class="mb-2">
                             <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center shadow-sm overflow-hidden" style="width: 70px; height: 70px; border: 2px solid #123456;">
                                 @if($user->profile_image)
@@ -55,17 +55,16 @@
 
                         <hr class="my-2 opacity-25">
 
+                        {{-- Details --}}
                         <div class="text-start px-1">
                             <div class="d-flex align-items-center mb-2">
                                 <i class="bi bi-envelope text-muted me-2 small"></i>
                                 <span class="text-truncate small" style="max-width: 100%;" title="{{ $user->email }}">{{ $user->email }}</span>
                             </div>
-                            
                             <div class="d-flex align-items-center mb-2">
                                 <i class="bi bi-telephone text-muted me-2 small"></i>
                                 <span class="small">{{ $user->phone_number ?? '-' }}</span>
                             </div>
-
                              <div class="d-flex align-items-center">
                                 <i class="bi bi-building text-muted me-2 small"></i>
                                 <span class="small text-truncate">{{ $user->department ?? '-' }}</span>
@@ -73,14 +72,12 @@
                         </div>
                     </div>
                     
-                    {{-- CARD FOOTER: Added Role Badge here --}}
+                    {{-- CARD FOOTER --}}
                     <div class="card-footer bg-white border-top-0 p-3 pt-0 d-flex align-items-center justify-content-between">
                         {{-- Role Badge --}}
                         <span class="badge bg-light text-secondary border text-capitalize">
                             {{ ucfirst($user->role) }}
                         </span>
-
-                        {{-- View Button --}}
                         <button type="button" 
                             class="btn btn-sm btn-outline-primary rounded-pill px-3 view-profile-btn" 
                             data-user-id="{{ $user->id }}"
@@ -100,7 +97,7 @@
         @endforelse
     </div>
 
-    {{-- Pagination --}}
+    {{-- 3. Pagination --}}
     <div class="row mt-4">
         <div class="col-12 d-flex justify-content-center">
             {{ $users->onEachSide(1)->links() }}
@@ -125,12 +122,10 @@
                         <div id="modal-loader-left" class="spinner-border text-light" role="status"></div>
                         
                         <div id="modal-content-left" class="d-none w-100">
-                            {{-- Avatar Section --}}
+                            {{-- Avatar --}}
                             <div class="mb-4 position-relative d-inline-block">
                                 <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center shadow overflow-hidden" style="width: 130px; height: 130px; border: 4px solid rgba(255,255,255,0.3);">
-                                    {{-- Default Icon --}}
                                     <i id="modal-default-avatar" class="bi bi-person-fill display-2 text-white"></i>
-                                    {{-- Actual Image (Hidden by default) --}}
                                     <img id="modal-user-image" src="" alt="Profile" class="w-100 h-100 object-fit-cover d-none">
                                 </div>
                             </div>
@@ -144,20 +139,25 @@
                                     <span id="modal-user-department-short" class="fw-bold"></span>
                                 </div>
                                 <div class="col-6">
-                                    <small class="d-block opacity-50 text-uppercase" style="font-size: 0.7rem;">Hired</small>
+                                    <small class="d-block opacity-50 text-uppercase" style="font-size: 0.7rem;">Started</small>
                                     <span id="modal-user-joined"></span>
+                                </div>
+                                <div class="col-12 mt-3 pt-3 border-top border-white border-opacity-10">
+                                    <small class="d-block opacity-50 text-uppercase" style="font-size: 0.7rem;">Contract End</small>
+                                    <span id="modal-user-end-date" class="fw-bold text-warning"></span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Right Side: Detailed Info --}}
+                    {{-- Right Side: Details --}}
                     <div class="col-md-7 bg-white p-4 p-md-5">
                         <div id="modal-loader-right" class="spinner-border text-primary" role="status" style="color: #123456 !important;"></div>
 
                         <div id="modal-content-right" class="d-none">
                             <h5 class="fw-bold mb-4 pb-2 border-bottom" style="color: #123456;">Employee Details</h5>
 
+                            {{-- Info Fields --}}
                             <div class="row g-3 mb-4">
                                 <div class="col-12">
                                     <label class="small text-muted fw-bold text-uppercase">Email</label>
@@ -199,12 +199,22 @@
                                 <p id="modal-user-about" class="text-muted small fst-italic mb-0"></p>
                             </div>
 
+                            {{-- MODAL FOOTER ACTIONS --}}
                             <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
                                 <button type="button" class="btn btn-light text-muted" data-bs-dismiss="modal">Close</button>
                                 
                                 @if(Auth::user()->role === 'admin')
+                                    {{-- DELETE BUTTON (Dynamic Action via JS) --}}
+                                    <form id="modal-delete-form" action="" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to PERMANENTLY delete this employee? This action cannot be undone.');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-outline-danger fw-bold">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </form>
+
                                     <a href="#" id="modal-edit-btn" class="btn btn-warning text-dark fw-bold px-4">
-                                        <i class="bi bi-pencil-square me-2"></i>Edit Profile
+                                        <i class="bi bi-pencil-square me-2"></i>Edit
                                     </a>
                                 @endif
                             </div>
@@ -234,15 +244,17 @@ document.addEventListener('DOMContentLoaded', function() {
             
             modal.show();
 
+            // Fetch Details
             fetch(`{{ route('admin.directory') }}/${userId}/details`)
                 .then(res => res.json())
                 .then(data => {
-                    // Populate Text
+                    // Populate Fields
                     const fields = {
                         'name': data.name,
                         'username': '@' + data.username,
                         'position': data.position,
                         'joined': data.joined_date,
+                        'end-date': data.end_date,
                         'department-short': data.department,
                         'email': data.email,
                         'phone': data.phone_number,
@@ -256,10 +268,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         if(el) el.textContent = value || '-';
                     }
 
-                    // --- HANDLE PROFILE IMAGE ---
+                    // Handle Profile Image
                     const userImg = document.getElementById('modal-user-image');
                     const defaultIcon = document.getElementById('modal-default-avatar');
-
                     if (data.profile_image) {
                         userImg.src = data.profile_image;
                         userImg.classList.remove('d-none');
@@ -268,12 +279,30 @@ document.addEventListener('DOMContentLoaded', function() {
                         userImg.classList.add('d-none');
                         defaultIcon.classList.remove('d-none');
                     }
-                    // ---------------------------
 
-                    // Update Edit Button
+                    // --- DYNAMICALLY UPDATE ADMIN BUTTONS ---
+                    
+                    // 1. Update Edit Button Link
                     const editBtn = document.getElementById('modal-edit-btn');
                     if(editBtn) {
                         editBtn.href = `{{ url('admin/users') }}/${data.id}/edit`;
+                    }
+
+                    // 2. Update Delete Form Action
+                    const deleteForm = document.getElementById('modal-delete-form');
+                    if(deleteForm) {
+                        deleteForm.action = `{{ url('admin/users') }}/${data.id}`;
+                        
+                        // Check if viewing self (Admin cannot delete themselves here)
+                        // Note: Backend also prevents this, but UI safety is good.
+                        // We compare fetched ID with authenticated User ID
+                        const currentUserId = {{ Auth::id() }};
+                        
+                        if (parseInt(data.id) === currentUserId) {
+                            deleteForm.classList.add('d-none'); // Hide delete for self
+                        } else {
+                            deleteForm.classList.remove('d-none'); // Show for others
+                        }
                     }
 
                     // Hide Loaders
@@ -284,7 +313,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .catch(err => {
                     console.error('Error fetching details:', err);
-                    alert('Failed to load user details.');
                 });
         });
     });

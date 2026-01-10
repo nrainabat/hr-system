@@ -171,16 +171,6 @@
                         </nav>
                     </div>
                 @endif
-                
-                {{-- Employee/Intern/Supervisor Personal Reports --}}
-                @if(in_array(Auth::user()->role, ['employee', 'intern']))
-                     <a class="nav-link" href="{{ route('employee.reports') }}">
-                        <span><i class="bi bi-pie-chart me-2"></i> My Stats</span>
-                    </a>
-                    <a class="nav-link" href="{{ route('performance.index') }}">
-                        <span><i class="bi bi-clipboard-check me-2"></i> My Performance</span>
-                    </a>
-                @endif
 
                 {{-- INTERN --}}
                 @if(Auth::user()->role === 'intern')
@@ -213,6 +203,16 @@
                     {{-- Supervisor Performance Evaluations --}}
                     <a class="nav-link" href="{{ route('performance.index') }}">
                         <span><i class="bi bi-award me-2"></i> Performance Reviews</span>
+                    </a>
+                @endif
+
+                {{-- Employee/Intern/Supervisor Personal Reports --}}
+                @if(in_array(Auth::user()->role, ['employee', 'intern']))
+                    <a class="nav-link" href="{{ route('performance.index') }}">
+                        <span><i class="bi bi-clipboard-check me-2"></i> My Performance</span>
+                    </a>
+                     <a class="nav-link" href="{{ route('employee.reports') }}">
+                        <span><i class="bi bi-pie-chart me-2"></i> My Stats</span>
                     </a>
                 @endif
             @endauth

@@ -18,7 +18,7 @@
     </div>
 
     <div class="row g-4">
-        {{-- LEFT COLUMN --}}
+        {{-- LEFT COLUMN (Main Content) --}}
         <div class="col-lg-8">
             
             {{-- 1. ATTENDANCE SECTION --}}
@@ -76,12 +76,12 @@
                 </div>
             </div>
 
-            {{-- 2. LEAVE OVERVIEW --}}
-            <h6 class="text-muted text-uppercase fw-bold mb-3 small">Leave Overview ({{ date('Y') }})</h6>
+            {{-- 2. LEAVE APPLICATION STATUS --}}
+            <h6 class="text-muted text-uppercase fw-bold mb-3 small">Application Status ({{ date('Y') }})</h6>
             <div class="row g-3 mb-4">
                 <div class="col-md-3 col-6">
                     <div class="card border-0 shadow-sm h-100 border-start border-4 border-primary">
-                        <div class="card-body p-3">
+                        <div class="card-body p-3 d-flex flex-column justify-content-between">
                             <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Total</small>
                             <h3 class="fw-bold mb-0 text-dark">{{ $totalLeaves ?? 0 }}</h3>
                         </div>
@@ -89,7 +89,7 @@
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="card border-0 shadow-sm h-100 border-start border-4 border-success">
-                        <div class="card-body p-3">
+                        <div class="card-body p-3 d-flex flex-column justify-content-between">
                             <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Approved</small>
                             <h3 class="fw-bold mb-0 text-dark">{{ $approvedCount ?? 0 }}</h3>
                         </div>
@@ -97,7 +97,7 @@
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="card border-0 shadow-sm h-100 border-start border-4 border-danger">
-                        <div class="card-body p-3">
+                        <div class="card-body p-3 d-flex flex-column justify-content-between">
                             <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Rejected</small>
                             <h3 class="fw-bold mb-0 text-dark">{{ $rejectedCount ?? 0 }}</h3>
                         </div>
@@ -105,7 +105,7 @@
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="card border-0 shadow-sm h-100 border-start border-4 border-secondary">
-                        <div class="card-body p-3">
+                        <div class="card-body p-3 d-flex flex-column justify-content-between">
                             <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Cancelled</small>
                             <h3 class="fw-bold mb-0 text-dark">{{ $cancelledCount ?? 0 }}</h3>
                         </div>
@@ -245,7 +245,7 @@
 
         </div>
 
-        {{-- RIGHT COLUMN --}}
+        {{-- RIGHT COLUMN (Sidebar) --}}
         <div class="col-lg-4">
             
             {{-- 1. PROFILE SUMMARY CARD --}}
@@ -268,7 +268,6 @@
                         <span class="badge bg-light text-dark border">{{ Auth::user()->position ?? 'No Position' }}</span>
                     </div>
 
-                    {{-- === NEW: DISPLAY ASSIGNED SUPERVISOR === --}}
                     @if(isset($assignedSupervisor) && $assignedSupervisor)
                         <div class="border-top pt-3 mt-3">
                             <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Supervisor</small>
@@ -288,7 +287,52 @@
                 </div>
             </div>
 
-            {{-- 2. QUICK ACTIONS --}}
+            {{-- 2. LEAVE ENTITLEMENT (Stacked Vertically - Full Width) --}}
+            @if(isset($balances) && $balances->count() > 0)
+                <h6 class="text-muted text-uppercase fw-bold mb-3 small">Leave Entitlement</h6>
+                <div class="row g-3 mb-4">
+                    @foreach($balances as $balance)
+                        {{-- CHANGED: col-12 makes it same width as Profile Card --}}
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm h-100 position-relative overflow-hidden">
+                                <div class="card-body p-3 d-flex flex-column justify-content-between" style="min-height: 110px;">
+                                    
+                                    {{-- Title --}}
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <small class="text-muted fw-bold text-uppercase text-truncate" title="{{ $balance->leave_type }}">
+                                            {{ $balance->leave_type }}
+                                        </small>
+                                    </div>
+                                    
+                                    {{-- Count --}}
+                                    <div class="d-flex align-items-baseline mb-2">
+                                        <h3 class="fw-bold mb-0 {{ $balance->remaining < 0 ? 'text-danger' : 'text-dark' }}">
+                                            {{ $balance->remaining }}
+                                        </h3>
+                                        <span class="text-muted small ms-1" style="font-size: 0.7rem;">left</span>
+                                    </div>
+                                    
+                                    {{-- Progress & Footer --}}
+                                    <div class="mt-auto">
+                                        @php
+                                            $percentage = $balance->balance > 0 ? ($balance->remaining / $balance->balance) * 100 : 0;
+                                            $color = $percentage < 20 ? 'bg-danger' : ($percentage < 50 ? 'bg-warning' : 'bg-primary');
+                                        @endphp
+                                        <div class="progress" style="height: 3px; margin-bottom: 6px;">
+                                            <div class="progress-bar {{ $color }}" role="progressbar" style="width: {{ max(0, min(100, $percentage)) }}%"></div>
+                                        </div>
+                                        <small class="text-muted d-block" style="font-size: 0.6rem;">
+                                            {{ $balance->days_used }} Used / {{ $balance->balance }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
+            {{-- 3. QUICK ACTIONS --}}
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white py-3 border-bottom">
                     <h6 class="mb-0 fw-bold" style="color: #123456;">QUICK ACTIONS</h6>
@@ -332,24 +376,18 @@
                 </div>
             </div>
 
-            {{-- 3. SUPERVISOR WIDGETS --}}
+            {{-- 4. SUPERVISOR WIDGETS --}}
             @if(Auth::user()->role === 'supervisor')
-                
-                {{-- A. TOTAL EMPLOYEES CARD --}}
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body text-center p-4">
-        <h6 class="fw-bold text-muted text-uppercase small mb-3">Total Assigned Employees</h6>
-        <h1 class="display-4 fw-bold mb-3 text-dark">{{ $totalTeam ?? 0 }}</h1>
-        
-        {{-- CHANGED: Now links to the new Team Directory page --}}
-        <a href="{{ route('supervisor.team') }}" class="btn btn-outline-dark btn-sm w-100">
-            <i class="bi bi-people-fill me-2"></i> View My Team
-        </a>
-        
-    </div>
-</div>
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body text-center p-4">
+                        <h6 class="fw-bold text-muted text-uppercase small mb-3">Total Assigned Employees</h6>
+                        <h1 class="display-4 fw-bold mb-3 text-dark">{{ $totalTeam ?? 0 }}</h1>
+                        <a href="{{ route('supervisor.team') }}" class="btn btn-outline-dark btn-sm w-100">
+                            <i class="bi bi-people-fill me-2"></i> View My Team
+                        </a>
+                    </div>
+                </div>
 
-                {{-- B. ATTENDANCE CHART CARD --}}
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-white py-3 border-bottom">
                         <h6 class="mb-0 fw-bold" style="color: #123456;">ATTENDANCE OVERVIEW</h6>
@@ -374,13 +412,13 @@
                         </div>
                     </div>
                 </div>
-
             @endif
 
         </div>
     </div>
 </div>
 
+{{-- MODAL FOR SUPERVISOR --}}
 @if(Auth::user()->role === 'supervisor')
 <div class="modal fade" id="teamListModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -395,7 +433,6 @@
                 <div class="list-group list-group-flush">
                     @forelse($myTeam ?? [] as $member)
                         <div class="list-group-item p-3 d-flex align-items-center justify-content-between">
-                            {{-- User Info --}}
                             <div class="d-flex align-items-center">
                                 <div class="rounded-circle bg-light d-flex justify-content-center align-items-center me-3 border" style="width: 45px; height: 45px;">
                                     <span class="fw-bold text-secondary">{{ substr($member->name, 0, 1) }}</span>
@@ -407,27 +444,15 @@
                                     </div>
                                 </div>
                             </div>
-
-                            {{-- Status Badge --}}
                             <div class="text-end">
                                 @if(in_array($member->attendance_status, ['Present', 'Overtime']))
-                                    <span class="badge bg-success bg-opacity-10 text-success border border-success">
-                                        {{ $member->attendance_status }}
-                                    </span>
-                                    <div class="small text-muted mt-1" style="font-size: 0.7rem;">
-                                        In: {{ \Carbon\Carbon::parse($member->clock_in_time)->format('h:i A') }}
-                                    </div>
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success">{{ $member->attendance_status }}</span>
+                                    <div class="small text-muted mt-1" style="font-size: 0.7rem;">In: {{ \Carbon\Carbon::parse($member->clock_in_time)->format('h:i A') }}</div>
                                 @elseif(in_array($member->attendance_status, ['Late', 'Half Day']))
-                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning">
-                                        {{ $member->attendance_status }}
-                                    </span>
-                                    <div class="small text-muted mt-1" style="font-size: 0.7rem;">
-                                        In: {{ \Carbon\Carbon::parse($member->clock_in_time)->format('h:i A') }}
-                                    </div>
+                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning">{{ $member->attendance_status }}</span>
+                                    <div class="small text-muted mt-1" style="font-size: 0.7rem;">In: {{ \Carbon\Carbon::parse($member->clock_in_time)->format('h:i A') }}</div>
                                 @else
-                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger">
-                                        Absent
-                                    </span>
+                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger">Absent</span>
                                 @endif
                             </div>
                         </div>

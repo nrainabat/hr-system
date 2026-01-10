@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\LeaveApplication;
 use App\Models\LeaveType;
-use App\Models\LeaveBalance;
 use App\Models\LeaveCount;
 use App\Models\User;
 use Carbon\Carbon; 
@@ -68,15 +67,16 @@ class AdminLeaveController extends Controller
     // 3. MANAGE LEAVE BALANCES 
     public function indexBalances()
     {
-        $users = User::whereIn('role', ['employee', 'supervisor', 'intern'])->orderBy('name')->get();
+        // UPDATE: Only fetch 'intern' role for the dropdown selection
+        $users = User::where('role', 'intern')->orderBy('name')->get();
+        
         $leaveTypes = LeaveType::all();
 
-        // Fetch balances with user details
+        // Fetch balances for ALL users (so you can still see Supervisor/Employee balances in the table)
         $balances = LeaveCount::with('user')->orderBy('user_id')->get();
 
         // Calculate Used & Remaining dynamically
         foreach ($balances as $balance) {
-            // Get approved leaves for this user & type in the current year
             $approvedLeaves = LeaveApplication::where('user_id', $balance->user_id)
                 ->where('leave_type', $balance->leave_type)
                 ->where('status', 'approved')
@@ -90,7 +90,6 @@ class AdminLeaveController extends Controller
                 $daysUsed += $start->diffInDays($end) + 1;
             }
 
-            // Attach temporary data to the object for the view
             $balance->days_used = $daysUsed;
             $balance->remaining = $balance->balance - $daysUsed;
         }

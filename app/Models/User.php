@@ -21,6 +21,8 @@ class User extends Authenticatable
         'about',
         'address',
         'supervisor_id',
+        'start_date',
+        'end_date',
     ];
 
     protected $hidden = [

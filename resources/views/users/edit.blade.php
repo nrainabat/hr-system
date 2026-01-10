@@ -71,18 +71,22 @@
                             </div>
 
                             <hr class="my-4">
+                            <h6 class="fw-bold text-secondary">Employment Details</h6>
 
-                            {{-- Role & Dept --}}
-                            <div class="col-md-12">
-                                <label class="form-label fw-semibold">System Role</label>
-                                <select name="role" class="form-select" required>
-                                    <option value="employee" {{ old('role', $user->role) == 'employee' ? 'selected' : '' }}>Employee</option>
-                                    <option value="intern" {{ old('role', $user->role) == 'intern' ? 'selected' : '' }}>Intern</option>
-                                    <option value="supervisor" {{ old('role', $user->role) == 'supervisor' ? 'selected' : '' }}>Supervisor</option>
-                                    <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Administrator</option>
-                                </select>
+                            {{-- START DATE --}}
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Start Date (Joined) <span class="text-danger">*</span></label>
+                                <input type="date" name="start_date" class="form-control" value="{{ old('start_date', $user->start_date) }}" required>
                             </div>
 
+                            {{-- END DATE --}}
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">End Date (Optional)</label>
+                                <input type="date" name="end_date" class="form-control" value="{{ old('end_date', $user->end_date) }}">
+                                <small class="text-muted">Leave blank for permanent employees.</small>
+                            </div>
+
+                            {{-- Department --}}
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Department</label>
                                 <select name="department" class="form-select">
@@ -94,29 +98,43 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            {{-- Position --}}
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Position</label>
                                 <select name="position" class="form-select">
-                                <option value="" disabled>Select Position</option>
-                                @foreach($positions as $job)
-                                <option value="{{ $job->title }}" {{ old('position', $user->position) == $job->title ? 'selected' : '' }}>
-                                    {{ $job->title }}
-                                </option>
-                                @endforeach
+                                    <option value="" disabled>Select Position</option>
+                                    @foreach($positions as $job)
+                                        <option value="{{ $job->title }}" {{ old('position', $user->position) == $job->title ? 'selected' : '' }}>
+                                            {{ $job->title }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
 
+                            {{-- Supervisor --}}
                             <div class="col-md-6">
-    <label class="form-label fw-semibold">Assign Supervisor</label>
-    <select name="supervisor_id" class="form-select">
-        <option value="" selected>No Supervisor</option>
-        @foreach($supervisors as $supervisor)
-            <option value="{{ $supervisor->id }}" {{ old('supervisor_id', $user->supervisor_id) == $supervisor->id ? 'selected' : '' }}>
-                {{ $supervisor->name }}
-            </option>
-        @endforeach
-    </select>
-</div>
+                                <label class="form-label fw-semibold">Assign Supervisor</label>
+                                <select name="supervisor_id" class="form-select">
+                                    <option value="" selected>No Supervisor</option>
+                                    @foreach($supervisors as $supervisor)
+                                        <option value="{{ $supervisor->id }}" {{ old('supervisor_id', $user->supervisor_id) == $supervisor->id ? 'selected' : '' }}>
+                                            {{ $supervisor->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            {{-- Role (Moved to Bottom) --}}
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">System Role <span class="text-danger">*</span></label>
+                                <select name="role" class="form-select" required>
+                                    <option value="employee" {{ old('role', $user->role) == 'employee' ? 'selected' : '' }}>Employee</option>
+                                    <option value="intern" {{ old('role', $user->role) == 'intern' ? 'selected' : '' }}>Intern</option>
+                                    <option value="supervisor" {{ old('role', $user->role) == 'supervisor' ? 'selected' : '' }}>Supervisor</option>
+                                    <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Administrator</option>
+                                </select>
+                            </div>
                         </div>
 
                         {{-- ACTION BUTTONS ROW --}}
@@ -129,7 +147,6 @@
                             {{-- RIGHT: Cancel & Update Buttons --}}
                             <div class="d-flex gap-2">
                                 <a href="{{ route('admin.directory') }}" class="btn btn-secondary px-4">Cancel</a>
-                                {{-- GREEN & BOLD BUTTON --}}
                                 <button type="submit" class="btn btn-success px-4 fw-bold">Update Details</button>
                             </div>
                         </div>
@@ -178,7 +195,6 @@
     </div>
 </div>
 
-{{-- Script to auto-open modal if there are password errors --}}
 <script>
     @if($errors->has('password'))
         var myModal = new bootstrap.Modal(document.getElementById('passwordModal'));

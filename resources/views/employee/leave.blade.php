@@ -62,7 +62,7 @@
 
                         <div class="d-flex justify-content-end gap-2">
                             <a href="/employee/dashboard" class="btn btn-secondary px-4">Cancel</a>
-                            <button type="submit" class="btn text-white px-4" style="background-color: #3b6d28ff;">
+                            <button type="submit" class="btn btn-success px-4 fw">
                                 Submit Application
                             </button>
                         </div>

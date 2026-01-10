@@ -120,6 +120,29 @@
                                         <hr class="my-4">
 
                                         {{-- 5. Read-Only System Fields --}}
+                                        
+                                        {{-- NEW: Employment Information Header --}}
+                                        <div class="col-12">
+                                            <h6 class="text-muted text-uppercase fw-bold small border-bottom pb-2">Employment Information</h6>
+                                        </div>
+
+                                        {{-- NEW: Start Date --}}
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold text-muted">Start Date</label>
+                                            <input type="text" class="form-control bg-light" 
+                                                   value="{{ Auth::user()->start_date ? \Carbon\Carbon::parse(Auth::user()->start_date)->format('d M Y') : 'N/A' }}" 
+                                                   readonly>
+                                        </div>
+
+                                        {{-- NEW: End Date --}}
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold text-muted">End Date</label>
+                                            <input type="text" class="form-control bg-light" 
+                                                   value="{{ Auth::user()->end_date ? \Carbon\Carbon::parse(Auth::user()->end_date)->format('d M Y') : 'Permanent' }}" 
+                                                   readonly>
+                                        </div>
+
+                                        {{-- Existing Read-Only Fields --}}
                                         <div class="col-md-6">
                                             <label class="form-label fw-semibold text-muted">Department</label>
                                             <input type="text" class="form-control bg-light" value="{{ Auth::user()->department }}" readonly>
@@ -130,7 +153,6 @@
                                             <input type="text" class="form-control bg-light" value="{{ Auth::user()->position }}" readonly>
                                         </div>
 
-                                        {{-- UPDATED: Supervisor Field --}}
                                         <div class="col-md-6">
                                             <label class="form-label fw-semibold text-muted">Supervisor Assigned</label>
                                             <input type="text" class="form-control bg-light" 
