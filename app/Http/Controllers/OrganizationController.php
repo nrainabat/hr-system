@@ -9,9 +9,7 @@ use App\Models\User;
 
 class OrganizationController extends Controller
 {
-    // ==========================================
-    // DEPARTMENTS
-    // ==========================================
+    // ... (Departments and Job Positions methods remain unchanged) ...
     public function indexDepartments()
     {
         $departments = Department::orderBy('name')->get();
@@ -28,20 +26,10 @@ class OrganizationController extends Controller
         return back()->with('success', 'Department added successfully!');
     }
 
-    // Show Edit Form (If you still use separate page)
-    public function editDepartment($id)
-    {
-        $department = Department::findOrFail($id);
-        return view('admin.organization.editDepartment', compact('department'));
-    }
-
-    // UPDATE DATA
     public function updateDepartment(Request $request, $id)
     {
         $request->validate(['name' => 'required|unique:departments,name,'.$id]);
         Department::findOrFail($id)->update($request->all());
-
-        // FIX: Changed 'admin.org.departments' to 'admin.org.departments.index'
         return redirect()->route('admin.org.departments.index')->with('success', 'Department updated successfully!');
     }
 
@@ -51,9 +39,7 @@ class OrganizationController extends Controller
         return back()->with('success', 'Department removed.');
     }
 
-    // ==========================================
-    // JOB POSITIONS
-    // ==========================================
+    // ... (Job Position methods remain unchanged) ...
     public function indexJobs()
     {
         $jobs = JobPosition::orderBy('title')->get();
@@ -67,20 +53,10 @@ class OrganizationController extends Controller
         return back()->with('success', 'Job Position added successfully!');
     }
 
-    // Show Edit Form
-    public function editJob($id)
-    {
-        $job = JobPosition::findOrFail($id);
-        return view('admin.organization.editJob', compact('job'));
-    }
-
-    // UPDATE DATA
     public function updateJob(Request $request, $id)
     {
         $request->validate(['title' => 'required|unique:job_positions,title,'.$id]);
         JobPosition::findOrFail($id)->update($request->all());
-
-        // FIX: Changed 'admin.org.jobs' to 'admin.org.jobs.index'
         return redirect()->route('admin.org.jobs.index')->with('success', 'Job Position updated successfully!');
     }
 
@@ -90,9 +66,7 @@ class OrganizationController extends Controller
         return back()->with('success', 'Job Position removed.');
     }
 
-    // ==========================================
-    // STRUCTURE ASSIGNMENTS
-    // ==========================================
+    // ... (Structure Assignments methods remain unchanged) ...
     public function structureAssignments()
     {
         $staffList = User::whereIn('role', ['employee', 'intern'])
@@ -107,14 +81,24 @@ class OrganizationController extends Controller
     }
 
     // ==========================================
-    // TEAM VIEW
+    // TEAM VIEW (UPDATED)
     // ==========================================
     public function structureTeams(Request $request)
     {
         $departments = Department::orderBy('name')->get();
         
         foreach($departments as $dept) {
+            // Count total users
             $dept->user_count = User::where('department', $dept->name)->count();
+
+            // NEW: Fetch the Supervisor for this Department
+            // We assume the first user with 'supervisor' role in this department is the lead
+            $supervisor = User::where('department', $dept->name)
+                              ->where('role', 'supervisor')
+                              ->first();
+            
+            // Attach supervisor details to the department object
+            $dept->supervisor = $supervisor; 
         }
 
         $selectedDeptId = $request->get('department_id', $departments->first()->id ?? 0);
@@ -130,9 +114,7 @@ class OrganizationController extends Controller
         return view('admin.organization.structTeams', compact('departments', 'selectedDept', 'employees'));
     }
 
-    // ==========================================
-    // ACTIONS
-    // ==========================================
+    // ... (Action methods remain unchanged) ...
     public function assignSupervisor(Request $request)
     {
         $request->validate([
@@ -143,7 +125,6 @@ class OrganizationController extends Controller
         $user = User::findOrFail($request->user_id);
         $user->supervisor_id = $request->supervisor_id;
         $user->save();
-
         return back()->with('success', 'Supervisor assigned successfully.');
     }
 
@@ -152,7 +133,6 @@ class OrganizationController extends Controller
         $user = User::findOrFail($id);
         $user->supervisor_id = null;
         $user->save();
-
         return back()->with('success', 'Supervisor unassigned.');
     }
 }

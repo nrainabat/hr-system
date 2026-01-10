@@ -18,17 +18,25 @@ class DashboardController extends Controller
     // ... (Admin, Supervisor, Employee, Intern methods remain unchanged)
     public function admin()
     {
-        // ... (Keep existing Admin logic)
-        $totalUsers = User::count();
+        // 1. UPDATE: Exclude 'admin' role from the total count
+        $totalUsers = User::where('role', '!=', 'admin')->count(); 
+
         $totalEmployees = User::where('role', 'employee')->count();
         $totalSupervisors = User::where('role', 'supervisor')->count();
         $totalInterns = User::where('role', 'intern')->count();
 
         $today = Carbon::today();
+        
+        // Note: Attendance percentage calculation will now reflect this new total 
+        // (Participation rate of non-admin staff)
         $presentCount = Attendance::whereDate('date', $today)->whereIn('status', ['Present', 'Overtime'])->count();
         $lateCount = Attendance::whereDate('date', $today)->whereIn('status', ['Late', 'Half Day'])->count();
         $totalRecordsToday = Attendance::whereDate('date', $today)->count();
+        
         $absentCount = $totalUsers - $totalRecordsToday;
+        // Ensure absent count doesn't go negative if an admin accidentally clocked in
+        if($absentCount < 0) $absentCount = 0; 
+
         $attendancePercentage = $totalUsers > 0 ? round(($totalRecordsToday / $totalUsers) * 100) : 0;
 
         $pendingLeaveRequests = LeaveApplication::with('user')->where('status', 'pending')->orderBy('created_at', 'desc')->get();

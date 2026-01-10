@@ -19,13 +19,25 @@
                     <a href="{{ route('admin.org.structure.teams', ['department_id' => $dept->id]) }}" 
                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ (isset($selectedDept) && $selectedDept->id == $dept->id) ? 'active' : '' }}"
                        style="{{ (isset($selectedDept) && $selectedDept->id == $dept->id) ? 'background-color: #123456; border-color: #123456;' : '' }}">
-                        <div>
-                            <div class="fw-bold">{{ $dept->name }}</div>
-                            {{-- Supervisor/Manager Name under department --}}
-                            <small class="{{ (isset($selectedDept) && $selectedDept->id == $dept->id) ? 'text-white-50' : 'text-muted' }}">
-                                <i class="bi bi-person-badge me-1"></i>{{ $dept->manager_name ?? 'No Manager' }}
+                        
+                        <div class="w-100 pe-2">
+                            <div class="fw-bold mb-1">{{ $dept->name }}</div>
+                            
+                            {{-- UPDATED: Supervisor Name & Phone --}}
+                            <small class="{{ (isset($selectedDept) && $selectedDept->id == $dept->id) ? 'text-white-50' : 'text-muted' }} d-block" style="font-size: 0.75rem; line-height: 1.3;">
+                                @if($dept->supervisor)
+                                    <div class="mb-1">
+                                        <i class="bi bi-person-badge me-1"></i> {{ $dept->supervisor->name }}
+                                    </div>
+                                    <div>
+                                        <i class="bi bi-telephone me-1"></i> {{ $dept->supervisor->phone_number ?? '-' }}
+                                    </div>
+                                @else
+                                    <div><i class="bi bi-exclamation-circle me-1"></i> No Supervisor</div>
+                                @endif
                             </small>
                         </div>
+
                         <span class="badge {{ (isset($selectedDept) && $selectedDept->id == $dept->id) ? 'bg-light text-dark' : 'bg-secondary' }} rounded-pill">
                             {{ $dept->user_count ?? 0 }}
                         </span>
@@ -60,7 +72,7 @@
                                         <div class="d-flex align-items-center">
                                             <div class="rounded-circle bg-light d-flex justify-content-center align-items-center me-2" style="width: 40px; height: 40px;">
                                                 @if($user->profile_image)
-                                                    <img src="{{ asset('storage/' . $user->profile_image) }}" class="w-100 h-100 rounded-circle object-fit-cover">
+                                                    <img src="{{ asset('storage/' . $user->profile_image) }}" class="w-100 h-100 rounded-circle object-fit-cover" alt="Profile">
                                                 @else
                                                     <i class="bi bi-person text-muted"></i>
                                                 @endif
