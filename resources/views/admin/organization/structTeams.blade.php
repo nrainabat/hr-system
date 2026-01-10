@@ -4,8 +4,7 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    
-    @include('admin.organization.nav')
+
 
     <div class="row">
         
@@ -23,7 +22,7 @@
                         <div class="w-100 pe-2">
                             <div class="fw-bold mb-1">{{ $dept->name }}</div>
                             
-                            {{-- UPDATED: Supervisor Name & Phone --}}
+                            {{-- SUPERVISOR INFO (Name + Phone) --}}
                             <small class="{{ (isset($selectedDept) && $selectedDept->id == $dept->id) ? 'text-white-50' : 'text-muted' }} d-block" style="font-size: 0.75rem; line-height: 1.3;">
                                 @if($dept->supervisor)
                                     <div class="mb-1">
@@ -62,7 +61,7 @@
                                     <th class="ps-4">Employee Name</th>
                                     <th>Position</th>
                                     <th>Role</th>
-                                    <th>Assigned Supervisor</th>
+                                    {{-- REMOVED: Assigned Supervisor Column --}}
                                 </tr>
                             </thead>
                             <tbody>
@@ -90,17 +89,11 @@
                                         @else <span class="badge bg-secondary">Employee</span>
                                         @endif
                                     </td>
-                                    <td>
-                                        @if($user->supervisor)
-                                            <span class="text-primary fw-bold"><i class="bi bi-person-badge me-1"></i> {{ $user->supervisor->name }}</span>
-                                        @else
-                                            <span class="text-muted small">Not Assigned</span>
-                                        @endif
-                                    </td>
+                                    {{-- REMOVED: Assigned Supervisor Data Cell --}}
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-5 text-muted">
+                                    <td colspan="3" class="text-center py-5 text-muted">
                                         <i class="bi bi-people display-4 d-block mb-3 opacity-25"></i>
                                         No employees found in {{ $selectedDept->name }}.
                                     </td>

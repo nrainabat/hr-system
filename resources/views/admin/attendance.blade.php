@@ -26,13 +26,30 @@
                     </thead>
                     <tbody>
                         @forelse($attendanceRecords as $record)
-                            {{-- Calculate Duration Logic --}}
+                            {{-- LOGIC: Calculate Duration & Completion Status --}}
                             @php
                                 $totalDuration = 'In Progress';
+                                $completionStatus = 'Ongoing';
+                                $completionClass = 'bg-secondary'; // Gray for ongoing
+
                                 if($record->clock_out) {
                                     $start = \Carbon\Carbon::parse($record->clock_in);
                                     $end = \Carbon\Carbon::parse($record->clock_out);
-                                    $totalDuration = $start->diff($end)->format('%h hrs %i mins');
+                                    
+                                    // Calculate Total Minutes
+                                    $minutes = $start->diffInMinutes($end);
+                                    
+                                    // Format string (e.g., 8 hrs 30 mins)
+                                    $totalDuration = floor($minutes / 60) . ' hrs ' . ($minutes % 60) . ' mins';
+
+                                    // Rule: 8 Hours = 480 Minutes
+                                    if ($minutes >= 480) {
+                                        $completionStatus = 'Complete';
+                                        $completionClass = 'bg-success'; // Green
+                                    } else {
+                                        $completionStatus = 'Incomplete';
+                                        $completionClass = 'bg-danger'; // Red
+                                    }
                                 }
                             @endphp
 
@@ -59,7 +76,8 @@
                                     <span class="badge bg-light text-dark border">Active</span>
                                 @endif
                             </td>
-                            {{-- Status Column --}}
+                            
+                            {{-- Attendance Status (Present, Late, Overtime) --}}
                             <td>
                                 @if($record->status == 'Present')
                                     <span class="badge bg-success">Present</span>
@@ -87,7 +105,9 @@
                                     data-clockout="{{ $record->clock_out ? \Carbon\Carbon::parse($record->clock_out)->format('h:i A') : '--' }}"
                                     data-status="{{ $record->status }}"
                                     data-overtime="{{ $record->overtime_hours ?? 'None' }}"
-                                    data-duration="{{ $totalDuration }}"> {{-- Pass Duration Here --}}
+                                    data-duration="{{ $totalDuration }}"
+                                    data-completion="{{ $completionStatus }}" 
+                                    data-completion-class="{{ $completionClass }}">
                                     <i class="bi bi-eye"></i> Preview
                                 </button>
                             </td>
@@ -104,6 +124,7 @@
     </div>
 </div>
 
+{{-- MODAL PREVIEW --}}
 <div class="modal fade" id="attendanceModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
@@ -131,7 +152,7 @@
                         <p id="modal-date" class="fw-bold text-dark fs-5"></p>
                     </div>
                     <div class="col-6">
-                        <label class="small text-muted fw-bold text-uppercase">Status</label>
+                        <label class="small text-muted fw-bold text-uppercase">Attendance Status</label>
                         <p><span id="modal-status" class="badge bg-secondary fs-6"></span></p>
                     </div>
 
@@ -144,24 +165,41 @@
                         <p id="modal-clockout" class="fw-bold text-danger fs-5"></p>
                     </div>
                     
-                    {{-- NEW: Total Working Hours --}}
+                    {{-- TOTAL WORKING HOURS & COMPLETION STATUS --}}
                     <div class="col-12">
-                        <div class="p-3 bg-light rounded border">
-                            <label class="small text-muted fw-bold text-uppercase mb-1">Total Working Hours</label>
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-hourglass-split fs-4 me-2 text-dark"></i>
-                                <span id="modal-duration" class="fw-bold fs-5 text-dark"></span>
+                        <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center">
+                            <div>
+                                <label class="small text-muted fw-bold text-uppercase mb-1">Total Working Hours</label>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-hourglass-split fs-4 me-2 text-dark"></i>
+                                    <span id="modal-duration" class="fw-bold fs-5 text-dark"></span>
+                                </div>
+                            </div>
+                            
+                            {{-- Shift Completion Badge --}}
+                            <div class="text-end">
+                                <label class="small text-muted fw-bold text-uppercase mb-1">Shift Status</label>
+                                <div>
+                                    <span id="modal-completion" class="badge fs-6"></span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Overtime Section --}}
+                    {{-- OVERTIME SECTION --}}
                     <div class="col-12" id="modal-overtime-container">
                         <div class="p-3 bg-opacity-10 bg-primary rounded border border-primary">
-                            <label class="small text-primary fw-bold text-uppercase mb-1">Overtime Duration</label>
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-stopwatch fs-4 me-2 text-primary"></i>
-                                <span id="modal-overtime" class="fw-bold fs-5 text-dark"></span>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <label class="small text-primary fw-bold text-uppercase mb-1">Overtime Count</label>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-stopwatch fs-4 me-2 text-primary"></i>
+                                        <span id="modal-overtime" class="fw-bold fs-5 text-dark"></span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="badge bg-primary">Extra Hours</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -175,16 +213,14 @@
     </div>
 </div>
 
-{{-- Script to Populate Modal --}}
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('attendanceModal');
         modal.addEventListener('show.bs.modal', function (event) {
-            // Button that triggered the modal
             const button = event.relatedTarget;
 
-            // Extract info from data-* attributes
+            // Extract Data
             const name = button.getAttribute('data-name');
             const dept = button.getAttribute('data-dept');
             const date = button.getAttribute('data-date');
@@ -192,18 +228,25 @@
             const clockout = button.getAttribute('data-clockout');
             const status = button.getAttribute('data-status');
             const overtime = button.getAttribute('data-overtime');
-            const duration = button.getAttribute('data-duration'); // <--- New Data
+            const duration = button.getAttribute('data-duration');
+            const completion = button.getAttribute('data-completion');
+            const completionClass = button.getAttribute('data-completion-class');
 
-            // Update the modal's content
+            // Populate Fields
             modal.querySelector('#modal-name').textContent = name;
             modal.querySelector('#modal-dept').textContent = dept;
             modal.querySelector('#modal-date').textContent = date;
             modal.querySelector('#modal-clockin').textContent = clockin;
             modal.querySelector('#modal-clockout').textContent = clockout;
+            modal.querySelector('#modal-duration').textContent = duration;
             modal.querySelector('#modal-overtime').textContent = overtime;
-            modal.querySelector('#modal-duration').textContent = duration; // <--- Update Text
-            
-            // Handle Overtime Visibility (Optional clean up)
+
+            // Handle Completion Badge
+            const completionBadge = modal.querySelector('#modal-completion');
+            completionBadge.textContent = completion;
+            completionBadge.className = 'badge fs-6 ' + completionClass;
+
+            // Handle Overtime Visibility
             const otContainer = modal.querySelector('#modal-overtime-container');
             if(overtime === 'None' || overtime === '') {
                 otContainer.style.display = 'none';
@@ -211,7 +254,7 @@
                 otContainer.style.display = 'block';
             }
             
-            // Handle Status Badge Color
+            // Handle Attendance Status Badge
             const statusSpan = modal.querySelector('#modal-status');
             statusSpan.textContent = status;
             statusSpan.className = 'badge fs-6 ';

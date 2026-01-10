@@ -127,10 +127,10 @@
                     </a>
                     <div class="collapse sub-menu" id="orgMenu">
                         <nav class="nav flex-column">
-                            {{-- UPDATED LINKS with .index --}}
                             <a class="nav-link" href="{{ route('admin.org.departments.index') }}">Departments</a>
                             <a class="nav-link" href="{{ route('admin.org.jobs.index') }}">Job Positions</a>
-                            <a class="nav-link" href="{{ route('admin.org.structure.assignments') }}">Structure</a>
+                            {{-- UPDATED: Changed link to Team Department --}}
+                            <a class="nav-link" href="{{ route('admin.org.structure.teams') }}">Structure</a>
                         </nav>
                     </div>
 
@@ -149,7 +149,6 @@
                         <span><i class="bi bi-clock me-2"></i> Attendance Log</span>
                     </a>
 
-                    {{-- Admin Reports & Performance --}}
                     <a class="nav-link" href="{{ route('admin.reports') }}">
                         <span><i class="bi bi-graph-up-arrow me-2"></i> Analytics</span>
                     </a>
@@ -196,11 +195,9 @@
                         </nav>
                     </div>
                     
-                    {{-- Supervisor Team Reports --}}
                     <a class="nav-link" href="{{ route('supervisor.reports') }}">
                         <span><i class="bi bi-bar-chart-line me-2"></i> Team Reports</span>
                     </a>
-                    {{-- Supervisor Performance Evaluations --}}
                     <a class="nav-link" href="{{ route('performance.index') }}">
                         <span><i class="bi bi-award me-2"></i> Performance Reviews</span>
                     </a>
@@ -221,8 +218,6 @@
 </div>
 
 <main class="container-fluid px-4">
-    
-    {{-- GLOBAL SUCCESS MESSAGE --}}
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
             <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
@@ -230,7 +225,6 @@
         </div>
     @endif
 
-    {{-- GLOBAL ERROR MESSAGE (Optional but recommended) --}}
     @if($errors->any())
         <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
             <ul class="mb-0">

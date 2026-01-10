@@ -18,17 +18,15 @@ class UserController extends Controller
 
         $departments = DB::table('departments')->orderBy('name')->get();
         $positions = DB::table('job_positions')->orderBy('title')->get();
-        
-        // Fetch Supervisors for the dropdown
         $supervisors = User::where('role', 'supervisor')->orderBy('name')->get();
 
         return view('users.create', compact('departments', 'positions', 'supervisors'));
     }
 
     // 2. Store the New User
-    // 2. Store the New User
     public function store(Request $request)
     {
+        // A. Validate
         $request->validate([
             'name'          => 'required|string|max:255',
             'username'      => 'required|string|max:50|unique:users,username',
@@ -39,12 +37,25 @@ class UserController extends Controller
             'supervisor_id' => 'nullable|exists:users,id',
             'start_date'    => 'required|date',
             'end_date'      => 'nullable|date|after:start_date',
-            
-            // Validate Manual Leave Input (Required only for Interns)
-            'annual_leave'  => 'nullable|required_if:role,intern|integer|min:0',
         ]);
 
-        // 1. Create User
+        // B. Logic: Auto-Assign Supervisor if None Selected
+        $supervisorId = $request->supervisor_id;
+        
+        // If the admin did NOT select a supervisor manually...
+        if (empty($supervisorId)) {
+            // ... find the first Supervisor belonging to the new employee's Department
+            $defaultSupervisor = User::where('department', $request->department)
+                                     ->where('role', 'supervisor')
+                                     ->first();
+            
+            // If found, use their ID
+            if ($defaultSupervisor) {
+                $supervisorId = $defaultSupervisor->id;
+            }
+        }
+
+        // C. Create User
         $user = User::create([
             'name'          => $request->name,
             'username'      => $request->username,
@@ -58,16 +69,15 @@ class UserController extends Controller
             'gender'        => $request->gender,
             'about'         => $request->about,
             'address'       => $request->address,
-            'supervisor_id' => $request->supervisor_id,
+            'supervisor_id' => $supervisorId, // <--- Assign the calculated ID
             'start_date'    => $request->start_date,
             'end_date'      => $request->end_date,
         ]);
 
-        // 2. Initialize Annual Leave Balance
+        // D. Create Leave Balance
         $annualLeaveBalance = 14; 
-
         if ($request->role === 'intern') {
-            $annualLeaveBalance = $request->input('annual_leave', 0);
+            $annualLeaveBalance = 0; // Default 0 for interns
         }
 
         LeaveCount::create([
@@ -76,6 +86,16 @@ class UserController extends Controller
             'balance'    => $annualLeaveBalance,
             'year'       => date('Y'),
         ]);
+
+        // E. Return Response
+        $message = 'User created successfully';
+        if (empty($request->supervisor_id) && $supervisorId) {
+            $message .= ' and default supervisor assigned.';
+        } else {
+            $message .= '!';
+        }
+
+        return redirect()->route('admin.users.create')->with('success', $message);
     }
 
     // 3. Show the Edit Form
@@ -86,12 +106,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $departments = DB::table('departments')->orderBy('name')->get();
         $positions = DB::table('job_positions')->orderBy('title')->get();
-
-        // Fetch Supervisors (Exclude the user themselves to prevent self-supervision)
-        $supervisors = User::where('role', 'supervisor')
-                            ->where('id', '!=', $id)
-                            ->orderBy('name')
-                            ->get();
+        $supervisors = User::where('role', 'supervisor')->where('id', '!=', $id)->orderBy('name')->get();
 
         return view('users.edit', compact('user', 'departments', 'positions', 'supervisors'));
     }
@@ -129,7 +144,6 @@ class UserController extends Controller
             'end_date'      => $request->end_date,
         ];
 
-        // Only update password if a new one is provided
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
@@ -139,36 +153,28 @@ class UserController extends Controller
         return redirect()->route('admin.directory')->with('success', 'User updated successfully!');
     }
 
-    // 5. Delete User (Destroy)
+    // 5. Delete User
     public function destroy($id)
     {
         if (Auth::user()->role !== 'admin') abort(403, 'Unauthorized action.');
 
         $user = User::findOrFail($id);
-
-        // Prevent Self-Deletion
         if ($user->id === Auth::id()) {
             return redirect()->back()->with('error', 'You cannot delete your own account while logged in.');
         }
-
         $user->delete();
 
         return redirect()->back()->with('success', 'Employee has been successfully removed.');
     }
 
-    // 6. Force Password Reset (Admin Action)
+    // 6. Update Password
     public function updatePassword(Request $request, $id)
     {
         if (Auth::user()->role !== 'admin') abort(403);
-
-        $request->validate([
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-
+        $request->validate(['password' => 'required|string|min:6|confirmed']);
+        
         $user = User::findOrFail($id);
-        $user->update([
-            'password' => Hash::make($request->password),
-        ]);
+        $user->update(['password' => Hash::make($request->password)]);
 
         return redirect()->back()->with('success', 'Password reset successfully!');
     }

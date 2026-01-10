@@ -33,12 +33,7 @@ class EmployeeDirectoryController extends Controller
 
     public function show($id)
     {
-        // Optional: Block access to admin details if accessed directly
         $user = User::findOrFail($id);
-        
-        if ($user->role === 'admin') {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
         
         return response()->json([
             'id' => $user->id,
@@ -47,6 +42,7 @@ class EmployeeDirectoryController extends Controller
             'email' => $user->email,
             'role' => ucfirst($user->role),
             'role_class' => match($user->role) {
+                'admin' => 'bg-danger',
                 'supervisor' => 'bg-warning text-dark',
                 'intern' => 'bg-info text-dark',
                 default => 'bg-primary'
@@ -59,7 +55,16 @@ class EmployeeDirectoryController extends Controller
             'gender' => $user->gender ?? 'N/A',
             'about' => $user->about ?? 'No bio available.',
             'address' => $user->address ?? 'No address provided.',
-            'joined_date' => $user->created_at ? $user->created_at->format('d M Y') : 'N/A',
+            
+            // === UPDATED: Employment Dates ===
+            'joined_date' => $user->start_date 
+                ? \Carbon\Carbon::parse($user->start_date)->format('d M Y') 
+                : ($user->created_at ? $user->created_at->format('d M Y') : 'N/A'),
+
+            // This was missing before:
+            'end_date' => $user->end_date 
+                ? \Carbon\Carbon::parse($user->end_date)->format('d M Y') 
+                : 'Permanent',
         ]);
     }
 

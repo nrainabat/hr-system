@@ -88,17 +88,12 @@ class OrganizationController extends Controller
         $departments = Department::orderBy('name')->get();
         
         foreach($departments as $dept) {
-            // Count total users
             $dept->user_count = User::where('department', $dept->name)->count();
-
-            // NEW: Fetch the Supervisor for this Department
-            // We assume the first user with 'supervisor' role in this department is the lead
-            $supervisor = User::where('department', $dept->name)
-                              ->where('role', 'supervisor')
-                              ->first();
             
-            // Attach supervisor details to the department object
-            $dept->supervisor = $supervisor; 
+            // 1. Fetch full Supervisor object (Name + Phone)
+            $dept->supervisor = User::where('department', $dept->name)
+                                    ->where('role', 'supervisor')
+                                    ->first();
         }
 
         $selectedDeptId = $request->get('department_id', $departments->first()->id ?? 0);
@@ -108,6 +103,9 @@ class OrganizationController extends Controller
         if ($selectedDept) {
             $employees = User::where('department', $selectedDept->name)
                              ->with('supervisor')
+                             // 2. Sort: Supervisor First, then Alphabetical
+                             ->orderByRaw("CASE WHEN role = 'supervisor' THEN 0 ELSE 1 END")
+                             ->orderBy('name', 'asc')
                              ->get();
         }
 

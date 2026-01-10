@@ -72,17 +72,7 @@
                                 <input type="date" name="end_date" class="form-control" value="{{ old('end_date') }}">
                             </div>
 
-                            {{-- INTERN SPECIFIC: Annual Leave (Hidden by default) --}}
-                            <div class="col-md-12 bg-light p-3 rounded border" id="internFields" style="display: none;">
-                                <label class="form-label fw-semibold text-primary">Intern Leave Settings</label>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <label class="form-label small">Annual Leave Entitlement (Days) <span class="text-danger">*</span></label>
-                                        <input type="number" name="annual_leave" id="annualLeaveInput" class="form-control" placeholder="e.g., 5" min="0" value="{{ old('annual_leave') }}">
-                                        <small class="text-muted">Manually assigned for interns. Others get 14 days default.</small>
-                                    </div>
-                                </div>
-                            </div>
+                            {{-- REMOVED: Intern Leave Settings Block --}}
 
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Department</label>
@@ -119,7 +109,7 @@
                             {{-- SYSTEM ROLE --}}
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">System Role <span class="text-danger">*</span></label>
-                                <select name="role" id="roleSelect" class="form-select" required onchange="handleRoleChange()">
+                                <select name="role" id="roleSelect" class="form-select" required>
                                     <option value="" selected disabled>Select a Role</option>
                                     <option value="employee" {{ old('role') == 'employee' ? 'selected' : '' }}>Employee</option>
                                     <option value="intern" {{ old('role') == 'intern' ? 'selected' : '' }}>Intern</option>
@@ -142,26 +132,8 @@
 
 @push('scripts')
 <script>
-    function handleRoleChange() {
-        const role = document.getElementById('roleSelect').value;
-        const internFields = document.getElementById('internFields');
-        const leaveInput = document.getElementById('annualLeaveInput');
-
-        // Logic: Show Manual Leave Input ONLY if Role is Intern
-        if (role === 'intern') {
-            internFields.style.display = 'block';
-            leaveInput.setAttribute('required', 'required');
-        } else {
-            internFields.style.display = 'none';
-            leaveInput.removeAttribute('required');
-            leaveInput.value = ''; // Clear it so it doesn't send old data
-        }
-    }
-
+    // Removed handleRoleChange function as it is no longer needed
     document.addEventListener("DOMContentLoaded", function() {
-        // Run on load to set correct state
-        handleRoleChange();
-
         @if(session('success'))
             var successModal = new bootstrap.Modal(document.getElementById('successModal'));
             successModal.show();
