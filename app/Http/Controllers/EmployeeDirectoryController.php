@@ -58,4 +58,27 @@ class EmployeeDirectoryController extends Controller
             'joined_date' => $user->created_at ? $user->created_at->format('d M Y') : 'N/A',
         ]);
     }
+
+    public function myTeam(Request $request)
+    {
+        // 1. Fetch only users where supervisor_id matches the logged-in Supervisor
+        $query = User::where('supervisor_id', Auth::id());
+
+        // 2. Apply Search Filter (same as Admin)
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('email', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('department', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('position', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        // 3. Paginate
+        $users = $query->orderBy('name', 'asc')->paginate(12)->withQueryString();
+
+        // 4. Return the specific Supervisor view
+        return view('supervisor.team', compact('users'));
+    }
 }

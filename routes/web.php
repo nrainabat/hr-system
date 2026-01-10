@@ -105,6 +105,7 @@ use App\Http\Controllers\EmployeeDirectoryController;
 Route::middleware(['auth'])->group(function () {
     Route::get('/directory', [EmployeeDirectoryController::class, 'index'])->name('admin.directory');
     Route::get('/directory/{id}/details', [App\Http\Controllers\EmployeeDirectoryController::class, 'show'])->name('directory.show');
+    Route::get('/supervisor/team', [EmployeeDirectoryController::class, 'myTeam'])->name('supervisor.team');
 
     // === ORGANIZATION ROUTES (ADMIN) ===
     // This prefix 'admin.org.' matches the view calls like 'admin.org.departments.store'

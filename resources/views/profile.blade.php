@@ -87,7 +87,7 @@
                                             <input type="email" name="email" class="form-control editable" value="{{ Auth::user()->email }}" required>
                                         </div>
 
-                                        {{-- 2. New Details: Phone & Gender --}}
+                                        {{-- 2. Additional Details: Phone & Gender --}}
                                         <div class="col-md-6">
                                             <label class="form-label fw-semibold">Phone Number</label>
                                             <input type="text" name="phone_number" class="form-control editable" 
@@ -103,14 +103,14 @@
                                             </select>
                                         </div>
 
-                                        {{-- 3. New Details: About Me --}}
+                                        {{-- 3. About Me --}}
                                         <div class="col-md-12">
                                             <label class="form-label fw-semibold">About Me</label>
                                             <textarea name="about" class="form-control editable" rows="3" 
                                                       placeholder="Brief bio about yourself...">{{ Auth::user()->about }}</textarea>
                                         </div>
 
-                                        {{-- 4. New Details: Address --}}
+                                        {{-- 4. Address --}}
                                         <div class="col-md-12">
                                             <label class="form-label fw-semibold">Residential Address</label>
                                             <textarea name="address" class="form-control editable" rows="2" 
@@ -130,7 +130,15 @@
                                             <input type="text" class="form-control bg-light" value="{{ Auth::user()->position }}" readonly>
                                         </div>
 
-                                        <div class="col-md-12">
+                                        {{-- UPDATED: Supervisor Field --}}
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold text-muted">Supervisor Assigned</label>
+                                            <input type="text" class="form-control bg-light" 
+                                                   value="{{ Auth::user()->supervisor ? Auth::user()->supervisor->name : 'Not Assigned' }}" 
+                                                   readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
                                             <label class="form-label fw-semibold text-muted">Role</label>
                                             <input type="text" class="form-control bg-light" value="{{ ucfirst(Auth::user()->role) }}" readonly>
                                         </div>

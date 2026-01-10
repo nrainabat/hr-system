@@ -335,16 +335,19 @@
             {{-- 3. SUPERVISOR WIDGETS --}}
             @if(Auth::user()->role === 'supervisor')
                 
-                {{-- A. TOTAL EMPLOYEES CARD (With Modal Trigger) --}}
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-body text-center p-4">
-                        <h6 class="fw-bold text-muted text-uppercase small mb-3">Total Assigned Employees</h6>
-                        <h1 class="display-4 fw-bold mb-3 text-dark">{{ $totalTeam ?? 0 }}</h1>
-                        <button type="button" class="btn btn-outline-dark btn-sm w-100" data-bs-toggle="modal" data-bs-target="#teamListModal">
-                            <i class="bi bi-list-ul me-2"></i> View My Team
-                        </button>
-                    </div>
-                </div>
+                {{-- A. TOTAL EMPLOYEES CARD --}}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body text-center p-4">
+        <h6 class="fw-bold text-muted text-uppercase small mb-3">Total Assigned Employees</h6>
+        <h1 class="display-4 fw-bold mb-3 text-dark">{{ $totalTeam ?? 0 }}</h1>
+        
+        {{-- CHANGED: Now links to the new Team Directory page --}}
+        <a href="{{ route('supervisor.team') }}" class="btn btn-outline-dark btn-sm w-100">
+            <i class="bi bi-people-fill me-2"></i> View My Team
+        </a>
+        
+    </div>
+</div>
 
                 {{-- B. ATTENDANCE CHART CARD --}}
                 <div class="card border-0 shadow-sm mb-4">
@@ -382,22 +385,17 @@
 <div class="modal fade" id="teamListModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow">
-            
-            {{-- Modal Header --}}
             <div class="modal-header bg-white border-bottom">
                 <h5 class="modal-title fw-bold" style="color: #123456;">
-                    <i class="bi bi-people-fill me-2"></i> My Team Members
+                    <i class="bi bi-people-fill me-2"></i> My Team Status
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            
-            {{-- Modal Body --}}
             <div class="modal-body p-0">
                 <div class="list-group list-group-flush">
                     @forelse($myTeam ?? [] as $member)
                         <div class="list-group-item p-3 d-flex align-items-center justify-content-between">
-                            
-                            {{-- LEFT: Avatar & Info --}}
+                            {{-- User Info --}}
                             <div class="d-flex align-items-center">
                                 <div class="rounded-circle bg-light d-flex justify-content-center align-items-center me-3 border" style="width: 45px; height: 45px;">
                                     <span class="fw-bold text-secondary">{{ substr($member->name, 0, 1) }}</span>
@@ -405,55 +403,42 @@
                                 <div>
                                     <h6 class="mb-0 fw-bold text-dark">{{ $member->name }}</h6>
                                     <div class="small text-muted">
-                                        <span class="badge bg-light text-dark border me-1">{{ ucfirst($member->role) }}</span>
                                         {{ $member->position ?? 'No Position' }}
                                     </div>
                                 </div>
                             </div>
 
-                            {{-- RIGHT: Attendance Status --}}
+                            {{-- Status Badge --}}
                             <div class="text-end">
                                 @if(in_array($member->attendance_status, ['Present', 'Overtime']))
                                     <span class="badge bg-success bg-opacity-10 text-success border border-success">
                                         {{ $member->attendance_status }}
                                     </span>
-                                    @if($member->clock_in_time)
-                                        <div class="small text-muted mt-1" style="font-size: 0.7rem;">
-                                            <i class="bi bi-clock"></i> {{ \Carbon\Carbon::parse($member->clock_in_time)->format('h:i A') }}
-                                        </div>
-                                    @endif
-
+                                    <div class="small text-muted mt-1" style="font-size: 0.7rem;">
+                                        In: {{ \Carbon\Carbon::parse($member->clock_in_time)->format('h:i A') }}
+                                    </div>
                                 @elseif(in_array($member->attendance_status, ['Late', 'Half Day']))
                                     <span class="badge bg-warning bg-opacity-10 text-warning border border-warning">
                                         {{ $member->attendance_status }}
                                     </span>
-                                    @if($member->clock_in_time)
-                                        <div class="small text-muted mt-1" style="font-size: 0.7rem;">
-                                            <i class="bi bi-clock"></i> {{ \Carbon\Carbon::parse($member->clock_in_time)->format('h:i A') }}
-                                        </div>
-                                    @endif
-
+                                    <div class="small text-muted mt-1" style="font-size: 0.7rem;">
+                                        In: {{ \Carbon\Carbon::parse($member->clock_in_time)->format('h:i A') }}
+                                    </div>
                                 @else
                                     <span class="badge bg-danger bg-opacity-10 text-danger border border-danger">
                                         Absent
                                     </span>
-                                    <div class="small text-muted mt-1" style="font-size: 0.7rem;">
-                                        No Record
-                                    </div>
                                 @endif
                             </div>
-
                         </div>
                     @empty
                         <div class="p-4 text-center text-muted">
                             <i class="bi bi-person-x display-4 mb-2 d-block"></i>
-                            <p class="mb-0">No employees assigned to you yet.</p>
+                            No employees assigned to you yet.
                         </div>
                     @endforelse
                 </div>
             </div>
-            
-            {{-- Modal Footer --}}
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Close</button>
             </div>

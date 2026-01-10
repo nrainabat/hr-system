@@ -26,10 +26,11 @@ class AuthController extends Controller
         ])) {
             $request->session()->regenerate();
 
-            // Redirect based on role
+            // === FIX IS HERE ===
             return match (Auth::user()->role) {
-                'admin' => redirect('/admin/dashboard'),
-                'supervisor', 'employee', 'intern' => redirect('/employee/dashboard'),
+                'admin'      => redirect('/admin/dashboard'),
+                'supervisor' => redirect('/supervisor/dashboard'), // Redirect to Supervisor Controller
+                'employee', 'intern' => redirect('/employee/dashboard'),
                 default => redirect('/'),
             };
         }

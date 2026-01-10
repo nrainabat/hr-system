@@ -72,10 +72,7 @@ class DashboardController extends Controller
         $userId = $user->id;
         $today = Carbon::today();
 
-        // 1. Fetch Assigned Supervisor
-        $assignedSupervisor = $user->supervisor; 
-
-        // 2. Common Data
+        // 1. Common Data
         $todayAttendance = Attendance::where('user_id', $userId)->where('date', $today)->latest()->first();
         $totalLeaves = LeaveApplication::where('user_id', $userId)->count();
         $approvedCount = LeaveApplication::where('user_id', $userId)->where('status', 'approved')->count();
@@ -84,7 +81,7 @@ class DashboardController extends Controller
         
         $announcements = Announcement::latest()->take(3)->get();
 
-        // 3. Role Specific Data
+        // 2. Role Specific Data
         $recentLeaves = [];
         $recentDocuments = [];
         $pendingInternDocuments = []; 
@@ -97,18 +94,18 @@ class DashboardController extends Controller
         $teamLate = 0;
         $teamAbsent = 0;
         $totalTeam = 0;
-        $myTeam = collect(); // Default empty collection
+        $myTeam = collect(); 
 
         if ($isIntern) {
             $recentDocuments = InternDocument::where('user_id', $userId)->latest()->take(5)->get();
         } 
         elseif ($isSupervisor) {
-            // A. Identify "My Team" (Strictly by supervisor_id assignment)
+            // A. Identify "My Team"
             $myTeam = User::where('supervisor_id', $userId)->get();
             $totalTeam = $myTeam->count();
             $myInternsCount = $myTeam->where('role', 'intern')->count();
 
-            // B. Fetch Team Attendance for Today to map statuses
+            // B. Fetch Today's Attendance for the Team
             $teamIds = $myTeam->pluck('id');
             $teamAttendanceRecords = Attendance::whereIn('user_id', $teamIds)
                                         ->where('date', $today)
@@ -116,9 +113,6 @@ class DashboardController extends Controller
                                         ->keyBy('user_id');
 
             // C. Iterate members to attach status and calculate counts
-            $teamPresent = 0;
-            $teamLate = 0;
-
             $myTeam->transform(function($member) use ($teamAttendanceRecords, &$teamPresent, &$teamLate) {
                 $att = $teamAttendanceRecords->get($member->id);
                 
@@ -168,7 +162,7 @@ class DashboardController extends Controller
             'recentLeaves', 'recentDocuments', 'pendingInternDocuments', 'announcements',
             'myInternsCount', 'pendingReviewCount', 'signedCount',
             'teamPresent', 'teamLate', 'teamAbsent', 'totalTeam', 
-            'myTeam', 'assignedSupervisor'
+            'myTeam'
         ));
     }
 }
