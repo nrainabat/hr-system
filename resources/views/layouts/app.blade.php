@@ -152,9 +152,19 @@
                     <a class="nav-link" href="{{ route('admin.reports') }}">
                         <span><i class="bi bi-graph-up-arrow me-2"></i> Analytics</span>
                     </a>
-                    <a class="nav-link" href="{{ route('performance.index') }}">
-                        <span><i class="bi bi-trophy me-2"></i> Performance</span>
+
+                    {{-- UPDATED: ADMIN PERFORMANCE DROPDOWN --}}
+                    <a class="nav-link" data-bs-toggle="collapse" href="#adminPerformanceMenu" role="button" aria-expanded="false">
+                        <span><i class="bi bi-trophy me-2"></i> Performance</span><i class="bi bi-chevron-right"></i>
                     </a>
+                    <div class="collapse sub-menu" id="adminPerformanceMenu">
+                        <nav class="nav flex-column">
+                            {{-- Admin Evaluation Page --}}
+                            <a class="nav-link" href="{{ route('performance.create') }}">Evaluate Staff</a>
+                            {{-- Admin View All Reviews --}}
+                            <a class="nav-link" href="{{ route('performance.index') }}">Performance Records</a>
+                        </nav>
+                    </div>
                 @endif
 
                 {{-- EMPLOYEE & INTERN --}}
@@ -198,9 +208,19 @@
                     <a class="nav-link" href="{{ route('supervisor.reports') }}">
                         <span><i class="bi bi-bar-chart-line me-2"></i> Team Reports</span>
                     </a>
-                    <a class="nav-link" href="{{ route('performance.index') }}">
-                        <span><i class="bi bi-award me-2"></i> Performance Reviews</span>
+
+                    {{-- UPDATED: SUPERVISOR PERFORMANCE DROPDOWN --}}
+                    <a class="nav-link" data-bs-toggle="collapse" href="#supervisorPerformanceMenu" role="button" aria-expanded="false">
+                        <span><i class="bi bi-award me-2"></i> Performance</span><i class="bi bi-chevron-right"></i>
                     </a>
+                    <div class="collapse sub-menu" id="supervisorPerformanceMenu">
+                        <nav class="nav flex-column">
+                            {{-- Supervisor Make Evaluation --}}
+                            <a class="nav-link" href="{{ route('performance.index') }}">Evaluate Teams</a>
+                            {{-- Supervisor View Their Own Reviews --}}
+                            <a class="nav-link" href="{{ route('performance.myReview') }}">Performance Review</a>
+                        </nav>
+                    </div>
                 @endif
 
                 {{-- Employee/Intern/Supervisor Personal Reports --}}

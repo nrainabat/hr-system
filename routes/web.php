@@ -191,17 +191,26 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-reports', [ReportController::class, 'employeeIndex'])->name('employee.reports');
 });
 
-
-// PERFORMANCE REVIEWS
+//PERFORMANCE EVALUATION
 use App\Http\Controllers\PerformanceController;
 Route::middleware(['auth'])->group(function () {
-    // 1. List
-    Route::get('/performance', [PerformanceController::class, 'index'])->name('performance.index');
-    
-    // 2. Create (Restricted to Supervisor/Admin in Controller)
+    // Shared Resource Routes (Create, Store, Show)
     Route::get('/performance/create', [PerformanceController::class, 'create'])->name('performance.create');
     Route::post('/performance', [PerformanceController::class, 'store'])->name('performance.store');
+    Route::get('/performance/show/{id}', [PerformanceController::class, 'show'])->name('performance.show');
     
-    // 3. Show
-    Route::get('/performance/{id}', [PerformanceController::class, 'show'])->name('performance.show');
+    // --- SUPERVISOR SPECIFIC ROUTES ---
+    // 1. Evaluate Teams (List of subordinates to evaluate)
+    Route::get('/performance/evaluate-teams', [PerformanceController::class, 'evaluateTeams'])->name('performance.evaluate_teams');
+    // 2. Performance Review (View own reviews from Admin)
+    Route::get('/performance/my-reviews', [PerformanceController::class, 'myReviews'])->name('performance.my_reviews');
+
+    // --- ADMIN SPECIFIC ROUTES ---
+    // 1. Evaluate Supervisors (List of supervisors to evaluate)
+    Route::get('/admin/performance/evaluate', [PerformanceController::class, 'adminEvaluateSupervisors'])->name('admin.performance.evaluate');
+    // 2. All Records (View all evaluations)
+    Route::get('/admin/performance/records', [PerformanceController::class, 'adminAllRecords'])->name('admin.performance.records');
+    
+    // Keep index as a fallback or redirect
+    Route::get('/performance', [PerformanceController::class, 'index'])->name('performance.index');
 });

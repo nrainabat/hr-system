@@ -10,59 +10,90 @@ use Carbon\Carbon;
 
 class PerformanceController extends Controller
 {
-    // 1. LIST: Show evaluations
+    // --- NEW: SUPERVISOR PAGES ---
+
+    // 1. Page to Evaluate Teams (List Subordinates)
+    public function evaluateTeams()
+    {
+        if (Auth::user()->role !== 'supervisor') {
+            abort(403, 'Unauthorized');
+        }
+
+        // Get strictly assigned subordinates
+        $team = User::where('supervisor_id', Auth::id())->get();
+        
+        return view('performance.index', compact('team'));
+    }
+
+    // 2. Page to View Own Performance (As evaluated by Admin)
+    public function myReviews()
+    {
+        // Get reviews where I am the SUBJECT (user_id)
+        $reviews = PerformanceReview::where('user_id', Auth::id())
+            ->with('reviewer')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('performance.my_reviews', compact('reviews'));
+    }
+
+    // --- NEW: ADMIN PAGES ---
+
+    // 3. Page to Evaluate Supervisors (List Supervisors)
+    public function adminEvaluateSupervisors()
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        // Get all supervisors to evaluate
+        $supervisors = User::where('role', 'supervisor')->get();
+
+        return view('admin.performance.evaluate', compact('supervisors'));
+    }
+
+    // 4. Page to View ALL Records
+    public function adminAllRecords()
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        $reviews = PerformanceReview::with(['employee', 'reviewer'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('admin.performance.records', compact('reviews'));
+    }
+
+    // --- EXISTING FUNCTIONS (Unchanged Logic) ---
+
     public function index()
     {
+        // Redirect to specific pages based on role to avoid confusion
         $user = Auth::user();
-
-        // SCENARIO A: Supervisor (Can only see/evaluate their own team)
         if ($user->role === 'supervisor') {
-            // Get strictly assigned subordinates
-            $subordinates = User::where('supervisor_id', $user->id)->get();
-            $subordinateIds = $subordinates->pluck('id');
-
-            // Show reviews ONLY for these subordinates
-            $reviews = PerformanceReview::with('employee')
-                ->whereIn('user_id', $subordinateIds)
-                ->orderBy('created_at', 'desc')
-                ->get();
-            
-            // For the "New Evaluation" dropdown, ONLY pass subordinates
-            return view('performance.index', compact('reviews', 'subordinates'));
-        } 
-        // SCENARIO B: Admin (Can see all)
-        elseif ($user->role === 'admin') {
-            $reviews = PerformanceReview::with(['employee', 'reviewer'])
-                ->orderBy('created_at', 'desc')
-                ->get();
-                
-            // Admin can evaluate anyone (or restrict if needed)
-            $subordinates = User::where('role', '!=', 'admin')->get(); 
-            return view('performance.index', compact('reviews', 'subordinates'));
-        }
-        // SCENARIO C: Employee/Intern (Can only see their own)
-        else {
-            $reviews = PerformanceReview::where('user_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->get();
-                
-            return view('performance.index', compact('reviews'));
+            return redirect()->route('performance.evaluate_teams');
+        } elseif ($user->role === 'admin') {
+            return redirect()->route('admin.performance.records');
+        } else {
+            return redirect()->route('performance.my_reviews');
         }
     }
 
-    // 2. CREATE: Show form with STRICT CHECK
     public function create(Request $request)
     {
-        // 1. Basic Role Check
         if (!in_array(Auth::user()->role, ['supervisor', 'admin'])) {
             abort(403, 'Unauthorized action.');
         }
 
         $employeeId = $request->query('employee_id');
+        if (!$employeeId) {
+            return redirect()->back()->with('error', 'No employee selected.');
+        }
+        
         $employee = User::findOrFail($employeeId);
 
-        // 2. STRICT RELATIONSHIP CHECK
-        // If I am a Supervisor, this employee MUST be assigned to me.
         if (Auth::user()->role === 'supervisor') {
             if ($employee->supervisor_id !== Auth::id()) {
                 abort(403, 'Access Denied: You can only evaluate employees strictly assigned to you.');
@@ -72,7 +103,6 @@ class PerformanceController extends Controller
         return view('performance.create', compact('employee'));
     }
 
-    // 3. STORE: Save with STRICT CHECK
     public function store(Request $request)
     {
         $request->validate([
@@ -86,14 +116,12 @@ class PerformanceController extends Controller
 
         $employee = User::findOrFail($request->user_id);
 
-        // REPEAT STRICT CHECK (Prevent tampering with POST data)
         if (Auth::user()->role === 'supervisor') {
             if ($employee->supervisor_id !== Auth::id()) {
                 abort(403, 'Access Denied: You cannot evaluate this employee.');
             }
         }
 
-        // Calculate Average
         $total = $request->rating_quality + $request->rating_efficiency + $request->rating_teamwork + $request->rating_punctuality;
         $average = $total / 4;
 
@@ -109,14 +137,17 @@ class PerformanceController extends Controller
             'comments' => $request->comments,
         ]);
 
-        return redirect()->route('performance.index')->with('success', 'Performance review submitted successfully.');
+        // Redirect back to the list they came from
+        if(Auth::user()->role === 'admin') {
+            return redirect()->route('admin.performance.records')->with('success', 'Evaluation submitted.');
+        }
+        return redirect()->route('performance.evaluate_teams')->with('success', 'Evaluation submitted.');
     }
 
     public function show($id)
     {
         $review = PerformanceReview::with(['employee', 'reviewer'])->findOrFail($id);
         
-        // Authorization: Admin, The Reviewer, or The Employee
         if (Auth::user()->id !== $review->user_id && 
             Auth::user()->id !== $review->reviewer_id && 
             Auth::user()->role !== 'admin') {
