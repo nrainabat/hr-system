@@ -194,23 +194,23 @@ Route::middleware(['auth'])->group(function () {
 //PERFORMANCE EVALUATION
 use App\Http\Controllers\PerformanceController;
 Route::middleware(['auth'])->group(function () {
-    // Shared Resource Routes (Create, Store, Show)
+
+    // 1. SHARED ROUTES (Create, Store, Show)
+    Route::get('/performance', [PerformanceController::class, 'index'])->name('performance.index');
     Route::get('/performance/create', [PerformanceController::class, 'create'])->name('performance.create');
     Route::post('/performance', [PerformanceController::class, 'store'])->name('performance.store');
     Route::get('/performance/show/{id}', [PerformanceController::class, 'show'])->name('performance.show');
-    
-    // --- SUPERVISOR SPECIFIC ROUTES ---
-    // 1. Evaluate Teams (List of subordinates to evaluate)
-    Route::get('/performance/evaluate-teams', [PerformanceController::class, 'evaluateTeams'])->name('performance.evaluate_teams');
-    // 2. Performance Review (View own reviews from Admin)
-    Route::get('/performance/my-reviews', [PerformanceController::class, 'myReviews'])->name('performance.my_reviews');
 
-    // --- ADMIN SPECIFIC ROUTES ---
-    // 1. Evaluate Supervisors (List of supervisors to evaluate)
-    Route::get('/admin/performance/evaluate', [PerformanceController::class, 'adminEvaluateSupervisors'])->name('admin.performance.evaluate');
-    // 2. All Records (View all evaluations)
-    Route::get('/admin/performance/records', [PerformanceController::class, 'adminAllRecords'])->name('admin.performance.records');
-    
-    // Keep index as a fallback or redirect
-    Route::get('/performance', [PerformanceController::class, 'index'])->name('performance.index');
+    // 2. SUPERVISOR SPECIFIC ROUTES
+    // Link to: "Evaluate Teams" -> Uses index.blade.php
+    Route::get('/performance/evaluate-teams', [PerformanceController::class, 'evaluateTeams'])
+        ->name('performance.evaluateTeams');
+
+    // Link to: "Performance Review" -> Uses myReview.blade.php
+    Route::get('/performance/my-reviews', [PerformanceController::class, 'myReviews'])
+        ->name('performance.myReview'); // <--- Matches the route called in your layout
+
+    // 3. ADMIN ROUTES
+    Route::get('/admin/performance', [PerformanceController::class, 'adminPerformance'])
+        ->name('admin.performance.index');
 });

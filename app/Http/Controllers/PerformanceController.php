@@ -10,74 +10,64 @@ use Carbon\Carbon;
 
 class PerformanceController extends Controller
 {
-    // --- NEW: SUPERVISOR PAGES ---
-
-    // 1. Page to Evaluate Teams (List Subordinates)
+    // --- SUPERVISOR ACTIONS (Unchanged) ---
     public function evaluateTeams()
     {
         if (Auth::user()->role !== 'supervisor') {
             abort(403, 'Unauthorized');
         }
-
-        // Get strictly assigned subordinates
-        $team = User::where('supervisor_id', Auth::id())->get();
+        $subordinates = User::where('supervisor_id', Auth::id())->get();
+        $reviews = PerformanceReview::where('reviewer_id', Auth::id())
+            ->with('employee')
+            ->orderBy('created_at', 'desc')
+            ->get();
         
-        return view('performance.index', compact('team'));
+        return view('performance.index', compact('reviews', 'subordinates'));
     }
 
-    // 2. Page to View Own Performance (As evaluated by Admin)
     public function myReviews()
     {
-        // Get reviews where I am the SUBJECT (user_id)
         $reviews = PerformanceReview::where('user_id', Auth::id())
             ->with('reviewer')
             ->orderBy('created_at', 'desc')
             ->get();
-
-        return view('performance.my_reviews', compact('reviews'));
+        return view('performance.myReview', compact('reviews'));
     }
 
-    // --- NEW: ADMIN PAGES ---
-
-    // 3. Page to Evaluate Supervisors (List Supervisors)
-    public function adminEvaluateSupervisors()
+    // --- NEW: ADMIN ACTION (Consolidated) ---
+    
+    // This handles the single "Performance Review" page for Admin
+    public function adminPerformance()
     {
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Unauthorized');
         }
 
-        // Get all supervisors to evaluate
-        $supervisors = User::where('role', 'supervisor')->get();
+        // 1. Dropdown: List ALL employees so Admin can evaluate anyone
+        // (Excluding other admins if you prefer, currently filtering out self)
+        $subordinates = User::where('id', '!=', Auth::id())->get();
 
-        return view('admin.performance.evaluate', compact('supervisors'));
-    }
-
-    // 4. Page to View ALL Records
-    public function adminAllRecords()
-    {
-        if (Auth::user()->role !== 'admin') {
-            abort(403, 'Unauthorized');
-        }
-
+        // 2. Table: List ALL performance records in the system
         $reviews = PerformanceReview::with(['employee', 'reviewer'])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('admin.performance.records', compact('reviews'));
+        // Uses index.blade.php
+        return view('performance.index', compact('reviews', 'subordinates'));
     }
 
-    // --- EXISTING FUNCTIONS (Unchanged Logic) ---
+    // --- SHARED ACTIONS ---
 
     public function index()
     {
-        // Redirect to specific pages based on role to avoid confusion
         $user = Auth::user();
         if ($user->role === 'supervisor') {
-            return redirect()->route('performance.evaluate_teams');
+            return redirect()->route('performance.evaluateTeams');
         } elseif ($user->role === 'admin') {
-            return redirect()->route('admin.performance.records');
+            // Redirect to the new single Admin route
+            return redirect()->route('admin.performance.index');
         } else {
-            return redirect()->route('performance.my_reviews');
+            return redirect()->route('performance.myReview');
         }
     }
 
@@ -94,6 +84,7 @@ class PerformanceController extends Controller
         
         $employee = User::findOrFail($employeeId);
 
+        // Strict Check for Supervisors only
         if (Auth::user()->role === 'supervisor') {
             if ($employee->supervisor_id !== Auth::id()) {
                 abort(403, 'Access Denied: You can only evaluate employees strictly assigned to you.');
@@ -115,15 +106,11 @@ class PerformanceController extends Controller
         ]);
 
         $employee = User::findOrFail($request->user_id);
-
-        if (Auth::user()->role === 'supervisor') {
-            if ($employee->supervisor_id !== Auth::id()) {
-                abort(403, 'Access Denied: You cannot evaluate this employee.');
-            }
+        if (Auth::user()->role === 'supervisor' && $employee->supervisor_id !== Auth::id()) {
+            abort(403, 'Access Denied.');
         }
 
-        $total = $request->rating_quality + $request->rating_efficiency + $request->rating_teamwork + $request->rating_punctuality;
-        $average = $total / 4;
+        $average = ($request->rating_quality + $request->rating_efficiency + $request->rating_teamwork + $request->rating_punctuality) / 4;
 
         PerformanceReview::create([
             'user_id' => $request->user_id,
@@ -137,11 +124,11 @@ class PerformanceController extends Controller
             'comments' => $request->comments,
         ]);
 
-        // Redirect back to the list they came from
+        // Redirect Admin to the single index page
         if(Auth::user()->role === 'admin') {
-            return redirect()->route('admin.performance.records')->with('success', 'Evaluation submitted.');
+            return redirect()->route('admin.performance.index')->with('success', 'Evaluation submitted.');
         }
-        return redirect()->route('performance.evaluate_teams')->with('success', 'Evaluation submitted.');
+        return redirect()->route('performance.evaluateTeams')->with('success', 'Evaluation submitted.');
     }
 
     public function show($id)

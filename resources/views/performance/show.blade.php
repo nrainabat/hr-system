@@ -9,8 +9,8 @@
                     
                     <div class="d-flex justify-content-between align-items-end border-bottom pb-4 mb-5">
                         <div>
-                            <h2 class="fw-bold text-uppercase text-dark mb-1" style="font-family: 'Times New Roman', Times, serif; letter-spacing: 1px;">Performance Appraisal</h2>
-                            <p class="text-muted small mb-0 fw-bold tracking-wide">HUMAN RESOURCES DEPARTMENT • CONFIDENTIAL RECORD</p>
+                            <h2 class="fw-bold text-uppercase text-dark mb-1" style="font-family: 'Times New Roman', Times, serif; letter-spacing: 1px;">Performance Report</h2>
+                            <p class="text-muted small mb-0 fw-bold tracking-wide">CONFIDENTIAL RECORD</p>
                         </div>
                         <div class="text-end">
                             <h5 class="fw-bold text-muted mb-0" style="opacity: 0.2; font-family: sans-serif;">OFFICIAL COPY</h5>
