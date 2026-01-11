@@ -51,7 +51,8 @@
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-white py-3 border-bottom">
                         <h5 class="fw-bold mb-0" style="color: #123456;">
-                            {{ $selectedDept->name }} <span class="text-muted fw-normal fs-6">Team Members</span>
+                            {{ $selectedDept->name }}
+                            <span class="d-block text-muted fw-normal fs-6 mt-1">Team Members</span>
                         </h5>
                     </div>
                     <div class="table-responsive">
@@ -61,7 +62,6 @@
                                     <th class="ps-4">Employee Name</th>
                                     <th>Position</th>
                                     <th>Role</th>
-                                    {{-- REMOVED: Assigned Supervisor Column --}}
                                 </tr>
                             </thead>
                             <tbody>

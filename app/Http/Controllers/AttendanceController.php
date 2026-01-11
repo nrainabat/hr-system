@@ -61,7 +61,7 @@ class AttendanceController extends Controller
             // Define Standard Work Hours (8 Hours = 480 Minutes)
             $standardWorkMinutes = 8 * 60;
 
-            $status = $attendance->status; // Start with the existing status (Late/Present)
+            $status = $attendance->status; 
             $overtimeHours = null;
             $message = 'Clocked Out Successfully!';
 
@@ -74,23 +74,32 @@ class AttendanceController extends Controller
             }
             // CASE B: Worked 8 hours or MORE
             else {
-                // Check for Overtime (Duration > 8 hours)
-                if ($totalMinutes > $standardWorkMinutes) {
-                    $otMinutes = $totalMinutes - $standardWorkMinutes;
-                    
+                // 1. Calculate how much time worked OVER 8 hours
+                $excessMinutes = $totalMinutes - $standardWorkMinutes;
+
+                // 2. Calculate how much time worked AFTER 5:00 PM
+                // Create a 5:00 PM timestamp for the attendance date
+                $fivePM = Carbon::parse($attendance->date)->setTime(17, 0, 0);
+                
+                $minutesAfterFive = 0;
+                if ($clockOutTime->greaterThan($fivePM)) {
+                    $minutesAfterFive = $fivePM->diffInMinutes($clockOutTime);
+                }
+
+                // 3. Overtime is the INTERSECTION (Minimum) of both conditions
+                // Example: Worked 10 hours (2h excess), but only 1 hour was after 5 PM -> Overtime = 1h
+                $otMinutes = min($excessMinutes, $minutesAfterFive);
+
+                if ($otMinutes > 0) {
                     // Format Overtime: "1h 30m"
                     $hours = floor($otMinutes / 60);
                     $minutes = $otMinutes % 60;
                     $overtimeHours = ($hours > 0 ? $hours . 'h ' : '') . ($minutes > 0 ? $minutes . 'm' : '');
 
-                    // Update Status logic:
-                    // 1. If they were LATE, keep status as 'Late' (but record the OT).
-                    // 2. If they were PRESENT (On Time), change status to 'Overtime'.
                     if ($status == 'Present') {
                         $status = 'Overtime';
                     }
                 }
-                // If exactly 8 hours, status remains 'Present' (or 'Late' if they were late)
             }
             
             // Update Record
